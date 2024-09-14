@@ -1,11 +1,16 @@
 "use client";
 
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvent,
+} from "react-leaflet";
 import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Button } from "./ui/button";
-
 const DefaultIcon = L.icon({
   iconUrl: "/marker-icon.png",
   shadowUrl: "/marker-shadow.png",
@@ -32,13 +37,22 @@ export default function Map() {
 
   useEffect(() => {
     getCurrentLocation();
+
+    let map: L.Map;
+    if (coordinates) {
+      map = L.map("map").setView([coordinates.lat, coordinates.lng], 13);
+    }
+
+    return () => {
+      map?.remove();
+    };
   }, []);
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="flex flex-col">
       {coordinates ? (
         <MapContainer
-          className="w-full h-full"
+          className="min-h-[500px] min-w-[500px] w-full h-full"
           center={[coordinates.lat, coordinates.lng]}
           zoom={13}
           scrollWheelZoom={false}

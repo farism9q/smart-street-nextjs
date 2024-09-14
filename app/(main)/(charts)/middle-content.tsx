@@ -22,7 +22,7 @@ const MiddleContent = () => {
   }, [middleContent]);
 
   return (
-    <div className="w-full h-full">
+    <div className="min-h-[500px] max-h-[500px] overflow-hidden">
       {middleContent === "map" ? (
         <Map />
       ) : (
@@ -32,6 +32,7 @@ const MiddleContent = () => {
             transform: "scale(-1, 1)",
             width: "100%",
             height: "100%",
+            overflow: "hidden",
           }}
         />
       )}

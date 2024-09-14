@@ -50,8 +50,8 @@ export default function PieChartComponent() {
   }, []);
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
+    <Card className="flex flex-col justify-center h-full">
+      <CardHeader className="items-center pb-0 pt-8">
         <CardTitle>Pie Chart</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
@@ -105,7 +105,7 @@ export default function PieChartComponent() {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
+      <CardFooter className="flex-col gap-2 text-sm pb-16">
         <div className="flex items-center gap-2 font-medium leading-none">
           Trending up
           <TrendingUp className="h-4 w-4" />

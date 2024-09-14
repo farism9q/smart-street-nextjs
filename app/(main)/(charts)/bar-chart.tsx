@@ -40,13 +40,16 @@ const chartConfig = {
 
 export default function BarChartComponent() {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="flex flex-col justify-center h-full">
+      <CardHeader className="items-center pb-0 pt-8">
         <CardTitle>Bar Chart - Multiple</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
@@ -65,7 +68,7 @@ export default function BarChartComponent() {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
+      <CardFooter className="flex-col items-start gap-2 text-sm pb-16">
         <div className="flex gap-2 font-medium leading-none">
           Trinding Up
           <TrendingUp className="h-4 w-4" />
