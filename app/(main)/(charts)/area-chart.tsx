@@ -25,112 +25,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { detection } from "@/types/detection";
 
+// This function will be used to generate the data for the area chart
+function generateAreaChartDate(detections: detection[]) {}
+
+// Since there is no data to be used for the area chart, we will use the below dummy data
+// Later, this data will be fetched from the database
 const chartData = [
-  { date: "2024-04-01", noViolation: 222, violation: 150 },
-  { date: "2024-04-02", noViolation: 97, violation: 180 },
-  { date: "2024-04-03", noViolation: 167, violation: 120 },
-  { date: "2024-04-04", noViolation: 242, violation: 260 },
-  { date: "2024-04-05", noViolation: 373, violation: 290 },
-  { date: "2024-04-06", noViolation: 301, violation: 340 },
-  { date: "2024-04-07", noViolation: 245, violation: 180 },
-  { date: "2024-04-08", noViolation: 409, violation: 320 },
-  { date: "2024-04-09", noViolation: 59, violation: 110 },
-  { date: "2024-04-10", noViolation: 261, violation: 190 },
-  { date: "2024-04-11", noViolation: 327, violation: 350 },
-  { date: "2024-04-12", noViolation: 292, violation: 210 },
-  { date: "2024-04-13", noViolation: 342, violation: 380 },
-  { date: "2024-04-14", noViolation: 137, violation: 220 },
-  { date: "2024-04-15", noViolation: 120, violation: 170 },
-  { date: "2024-04-16", noViolation: 138, violation: 190 },
-  { date: "2024-04-17", noViolation: 446, violation: 360 },
-  { date: "2024-04-18", noViolation: 364, violation: 410 },
-  { date: "2024-04-19", noViolation: 243, violation: 180 },
-  { date: "2024-04-20", noViolation: 89, violation: 150 },
-  { date: "2024-04-21", noViolation: 137, violation: 200 },
-  { date: "2024-04-22", noViolation: 224, violation: 170 },
-  { date: "2024-04-23", noViolation: 138, violation: 230 },
-  { date: "2024-04-24", noViolation: 387, violation: 290 },
-  { date: "2024-04-25", noViolation: 215, violation: 250 },
-  { date: "2024-04-26", noViolation: 75, violation: 130 },
-  { date: "2024-04-27", noViolation: 383, violation: 420 },
-  { date: "2024-04-28", noViolation: 122, violation: 180 },
-  { date: "2024-04-29", noViolation: 315, violation: 240 },
-  { date: "2024-04-30", noViolation: 454, violation: 380 },
-  { date: "2024-05-01", noViolation: 165, violation: 220 },
-  { date: "2024-05-02", noViolation: 293, violation: 310 },
-  { date: "2024-05-03", noViolation: 247, violation: 190 },
-  { date: "2024-05-04", noViolation: 385, violation: 420 },
-  { date: "2024-05-05", noViolation: 481, violation: 390 },
-  { date: "2024-05-06", noViolation: 498, violation: 520 },
-  { date: "2024-05-07", noViolation: 388, violation: 300 },
-  { date: "2024-05-08", noViolation: 149, violation: 210 },
-  { date: "2024-05-09", noViolation: 227, violation: 180 },
-  { date: "2024-05-10", noViolation: 293, violation: 330 },
-  { date: "2024-05-11", noViolation: 335, violation: 270 },
-  { date: "2024-05-12", noViolation: 197, violation: 240 },
-  { date: "2024-05-13", noViolation: 197, violation: 160 },
-  { date: "2024-05-14", noViolation: 448, violation: 490 },
-  { date: "2024-05-15", noViolation: 473, violation: 380 },
-  { date: "2024-05-16", noViolation: 338, violation: 400 },
-  { date: "2024-05-17", noViolation: 499, violation: 420 },
-  { date: "2024-05-18", noViolation: 315, violation: 350 },
-  { date: "2024-05-19", noViolation: 235, violation: 180 },
-  { date: "2024-05-20", noViolation: 177, violation: 230 },
-  { date: "2024-05-21", noViolation: 82, violation: 140 },
-  { date: "2024-05-22", noViolation: 81, violation: 120 },
-  { date: "2024-05-23", noViolation: 252, violation: 290 },
-  { date: "2024-05-24", noViolation: 294, violation: 220 },
-  { date: "2024-05-25", noViolation: 201, violation: 250 },
-  { date: "2024-05-26", noViolation: 213, violation: 170 },
-  { date: "2024-05-27", noViolation: 420, violation: 460 },
-  { date: "2024-05-28", noViolation: 233, violation: 190 },
-  { date: "2024-05-29", noViolation: 78, violation: 130 },
-  { date: "2024-05-30", noViolation: 340, violation: 280 },
-  { date: "2024-05-31", noViolation: 178, violation: 230 },
-  { date: "2024-06-01", noViolation: 178, violation: 200 },
-  { date: "2024-06-02", noViolation: 470, violation: 410 },
-  { date: "2024-06-03", noViolation: 103, violation: 160 },
-  { date: "2024-06-04", noViolation: 439, violation: 380 },
-  { date: "2024-06-05", noViolation: 88, violation: 140 },
-  { date: "2024-06-06", noViolation: 294, violation: 250 },
-  { date: "2024-06-07", noViolation: 323, violation: 370 },
-  { date: "2024-06-08", noViolation: 385, violation: 320 },
-  { date: "2024-06-09", noViolation: 438, violation: 480 },
-  { date: "2024-06-10", noViolation: 155, violation: 200 },
-  { date: "2024-06-11", noViolation: 92, violation: 150 },
-  { date: "2024-06-12", noViolation: 492, violation: 420 },
-  { date: "2024-06-13", noViolation: 81, violation: 130 },
-  { date: "2024-06-14", noViolation: 426, violation: 380 },
-  { date: "2024-06-15", noViolation: 307, violation: 350 },
-  { date: "2024-06-16", noViolation: 371, violation: 310 },
-  { date: "2024-06-17", noViolation: 475, violation: 520 },
-  { date: "2024-06-18", noViolation: 107, violation: 170 },
-  { date: "2024-06-19", noViolation: 341, violation: 290 },
-  { date: "2024-06-20", noViolation: 408, violation: 450 },
-  { date: "2024-06-21", noViolation: 169, violation: 210 },
-  { date: "2024-06-22", noViolation: 317, violation: 270 },
-  { date: "2024-06-23", noViolation: 480, violation: 530 },
-  { date: "2024-06-24", noViolation: 132, violation: 180 },
-  { date: "2024-06-25", noViolation: 141, violation: 190 },
-  { date: "2024-06-26", noViolation: 434, violation: 380 },
-  { date: "2024-06-27", noViolation: 448, violation: 490 },
-  { date: "2024-06-28", noViolation: 149, violation: 200 },
-  { date: "2024-06-29", noViolation: 103, violation: 160 },
-  { date: "2024-06-30", noViolation: 446, violation: 400 },
+  { date: "2024-08-01", car: 222, bus: 150, truck: 100 },
+  { date: "2024-08-02", car: 200, bus: 130, truck: 90 },
+  { date: "2024-08-03", car: 180, bus: 120, truck: 80 },
+  { date: "2024-08-08", car: 160, bus: 110, truck: 70 },
+  { date: "2024-08-05", car: 140, bus: 100, truck: 60 },
+  { date: "2024-08-06", car: 120, bus: 90, truck: 50 },
+  { date: "2024-08-07", car: 100, bus: 80, truck: 40 },
+  { date: "2024-08-08", car: 80, bus: 70, truck: 30 },
+  { date: "2024-08-09", car: 60, bus: 60, truck: 20 },
+  { date: "2024-08-10", car: 40, bus: 50, truck: 10 },
+  { date: "2024-08-11", car: 20, bus: 40, truck: 0 },
+  { date: "2024-08-12", car: 0, bus: 30, truck: 0 },
+  { date: "2024-08-13", car: 0, bus: 20, truck: 0 },
+  { date: "2024-08-14", car: 0, bus: 10, truck: 0 },
+  { date: "2024-08-15", car: 0, bus: 0, truck: 0 },
+  { date: "2024-09-10", car: 100, bus: 100, truck: 100 },
+  { date: "2024-09-11", car: 100, bus: 100, truck: 100 },
+  { date: "2024-09-12", car: 100, bus: 100, truck: 100 },
+  { date: "2024-09-13", car: 100, bus: 100, truck: 100 },
+  { date: "2024-09-14", car: 100, bus: 100, truck: 100 },
+  { date: "2024-09-15", car: 100, bus: 100, truck: 100 },
 ];
 
 const chartConfig = {
-  violations: {
-    label: "Violations",
-  },
-  noViolation: {
-    label: "No Violation",
+  car: {
+    label: "Car",
     color: "hsl(var(--chart-1))",
   },
-  violation: {
-    label: "Violation",
+  bus: {
+    label: "Bus",
     color: "hsl(var(--chart-3))",
+  },
+  truck: {
+    label: "Truck",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
@@ -156,8 +93,7 @@ export default function AreaChartComponent() {
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Area Chart</CardTitle>
           <CardDescription>
-            Showing the total number of cars crossed the yellow line on the
-            sideover time.
+            Showing the total number of violated vehicles over time.
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
@@ -187,27 +123,39 @@ export default function AreaChartComponent() {
         >
           <AreaChart data={filteredData}>
             <defs>
-              <linearGradient id="fillNoViolation" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillCar" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-noViolation)"
+                  stopColor="var(--color-car)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-noViolation)"
+                  stopColor="var(--color-car)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id="fillViolation" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillBus" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-violation)"
+                  stopColor="var(--color-bus)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-violation)"
+                  stopColor="var(--color-bus)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id="fillTruck" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-truck)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-truck)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -243,19 +191,27 @@ export default function AreaChartComponent() {
               }
             />
             <Area
-              dataKey="noViolation"
+              dataKey="car"
               type="natural"
-              fill="url(#fillNoViolation)"
-              stroke="var(--color-noViolation)"
+              fill="url(#fillCar)"
+              stroke="var(--color-car)"
               stackId="a"
             />
             <Area
-              dataKey="violation"
+              dataKey="bus"
               type="natural"
-              fill="url(#fillViolation)"
-              stroke="var(--color-violation)"
+              fill="url(#fillBus)"
+              stroke="var(--color-bus)"
               stackId="a"
             />
+            <Area
+              dataKey="truck"
+              type="natural"
+              fill="url(#fillTruck)"
+              stroke="var(--color-truck)"
+              stackId="a"
+            />
+
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>

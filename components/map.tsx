@@ -1,24 +1,17 @@
 "use client";
 
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-  useMapEvent,
-} from "react-leaflet";
+import { MapContainer, Popup, TileLayer, CircleMarker } from "react-leaflet";
 import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-const DefaultIcon = L.icon({
-  iconUrl: "/marker-icon.png",
-  shadowUrl: "/marker-shadow.png",
-});
 
-L.Marker.prototype.options.icon = DefaultIcon;
+import "@/app/styles/leaflet.css";
+import { detection } from "@/types/detection";
 
-export default function Map() {
+type MapProps = {
+  detections: detection[];
+};
+
+export default function Map({ detections }: MapProps) {
   const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
@@ -37,15 +30,6 @@ export default function Map() {
 
   useEffect(() => {
     getCurrentLocation();
-
-    let map: L.Map;
-    if (coordinates) {
-      map = L.map("map").setView([coordinates.lat, coordinates.lng], 13);
-    }
-
-    return () => {
-      map?.remove();
-    };
   }, []);
 
   return (
@@ -57,15 +41,42 @@ export default function Map() {
           zoom={13}
           scrollWheelZoom={false}
         >
+          {detections.map(detection => (
+            <CircleMarker
+              center={[detection.latitude, detection.longitude]}
+              pathOptions={{ color: "red" }}
+              radius={10}
+            >
+              <Popup>
+                <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
+                  <p className="text-lg font-semibold">
+                    A{" "}
+                    <span className="text-blue-500">
+                      {detection.vehicle_type}
+                    </span>{" "}
+                    detected
+                  </p>
+                  <p className="text-sm">
+                    Coordinates:{" "}
+                    <span className="font-bold text-green-500">
+                      {detection.latitude}, {detection.longitude}
+                    </span>
+                  </p>
+                  <p className="text-sm">
+                    Violation:{" "}
+                    <span className="font-bold text-red-500">
+                      {detection.violation_type}
+                    </span>
+                  </p>
+                </div>
+              </Popup>
+            </CircleMarker>
+          ))}
+
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <Marker position={[coordinates.lat, coordinates.lng]}>
-            <Popup>
-              A pretty CSS3 popup. <br /> Easily customizable.
-            </Popup>
-          </Marker>
         </MapContainer>
       ) : (
         <div className="w-full h-full flex items-center justify-center">

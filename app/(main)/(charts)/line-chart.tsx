@@ -16,124 +16,59 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { detection } from "@/types/detection";
 
+// This function will be used to generate the data for the line chart
+function generateLineChartData(detections: detection[]) {}
 
+// Since there is no data to be used for the line chart, we will use the below dummy data
 const chartData = [
-  { date: "2024-04-01", left: 222, right: 150 },
-  { date: "2024-04-02", left: 97, right: 180 },
-  { date: "2024-04-03", left: 167, right: 120 },
-  { date: "2024-04-04", left: 242, right: 260 },
-  { date: "2024-04-05", left: 373, right: 290 },
-  { date: "2024-04-06", left: 301, right: 340 },
-  { date: "2024-04-07", left: 245, right: 180 },
-  { date: "2024-04-08", left: 409, right: 320 },
-  { date: "2024-04-09", left: 59, right: 110 },
-  { date: "2024-04-10", left: 261, right: 190 },
-  { date: "2024-04-11", left: 327, right: 350 },
-  { date: "2024-04-12", left: 292, right: 210 },
-  { date: "2024-04-13", left: 342, right: 380 },
-  { date: "2024-04-14", left: 137, right: 220 },
-  { date: "2024-04-15", left: 120, right: 170 },
-  { date: "2024-04-16", left: 138, right: 190 },
-  { date: "2024-04-17", left: 446, right: 360 },
-  { date: "2024-04-18", left: 364, right: 410 },
-  { date: "2024-04-19", left: 243, right: 180 },
-  { date: "2024-04-20", left: 89, right: 150 },
-  { date: "2024-04-21", left: 137, right: 200 },
-  { date: "2024-04-22", left: 224, right: 170 },
-  { date: "2024-04-23", left: 138, right: 230 },
-  { date: "2024-04-24", left: 387, right: 290 },
-  { date: "2024-04-25", left: 215, right: 250 },
-  { date: "2024-04-26", left: 75, right: 130 },
-  { date: "2024-04-27", left: 383, right: 420 },
-  { date: "2024-04-28", left: 122, right: 180 },
-  { date: "2024-04-29", left: 315, right: 240 },
-  { date: "2024-04-30", left: 454, right: 380 },
-  { date: "2024-05-01", left: 165, right: 220 },
-  { date: "2024-05-02", left: 293, right: 310 },
-  { date: "2024-05-03", left: 247, right: 190 },
-  { date: "2024-05-04", left: 385, right: 420 },
-  { date: "2024-05-05", left: 481, right: 390 },
-  { date: "2024-05-06", left: 498, right: 520 },
-  { date: "2024-05-07", left: 388, right: 300 },
-  { date: "2024-05-08", left: 149, right: 210 },
-  { date: "2024-05-09", left: 227, right: 180 },
-  { date: "2024-05-10", left: 293, right: 330 },
-  { date: "2024-05-11", left: 335, right: 270 },
-  { date: "2024-05-12", left: 197, right: 240 },
-  { date: "2024-05-13", left: 197, right: 160 },
-  { date: "2024-05-14", left: 448, right: 490 },
-  { date: "2024-05-15", left: 473, right: 380 },
-  { date: "2024-05-16", left: 338, right: 400 },
-  { date: "2024-05-17", left: 499, right: 420 },
-  { date: "2024-05-18", left: 315, right: 350 },
-  { date: "2024-05-19", left: 235, right: 180 },
-  { date: "2024-05-20", left: 177, right: 230 },
-  { date: "2024-05-21", left: 82, right: 140 },
-  { date: "2024-05-22", left: 81, right: 120 },
-  { date: "2024-05-23", left: 252, right: 290 },
-  { date: "2024-05-24", left: 294, right: 220 },
-  { date: "2024-05-25", left: 201, right: 250 },
-  { date: "2024-05-26", left: 213, right: 170 },
-  { date: "2024-05-27", left: 420, right: 460 },
-  { date: "2024-05-28", left: 233, right: 190 },
-  { date: "2024-05-29", left: 78, right: 130 },
-  { date: "2024-05-30", left: 340, right: 280 },
-  { date: "2024-05-31", left: 178, right: 230 },
-  { date: "2024-06-01", left: 178, right: 200 },
-  { date: "2024-06-02", left: 470, right: 410 },
-  { date: "2024-06-03", left: 103, right: 160 },
-  { date: "2024-06-04", left: 439, right: 380 },
-  { date: "2024-06-05", left: 88, right: 140 },
-  { date: "2024-06-06", left: 294, right: 250 },
-  { date: "2024-06-07", left: 323, right: 370 },
-  { date: "2024-06-08", left: 385, right: 320 },
-  { date: "2024-06-09", left: 438, right: 480 },
-  { date: "2024-06-10", left: 155, right: 200 },
-  { date: "2024-06-11", left: 92, right: 150 },
-  { date: "2024-06-12", left: 492, right: 420 },
-  { date: "2024-06-13", left: 81, right: 130 },
-  { date: "2024-06-14", left: 426, right: 380 },
-  { date: "2024-06-15", left: 307, right: 350 },
-  { date: "2024-06-16", left: 371, right: 310 },
-  { date: "2024-06-17", left: 475, right: 520 },
-  { date: "2024-06-18", left: 107, right: 170 },
-  { date: "2024-06-19", left: 341, right: 290 },
-  { date: "2024-06-20", left: 408, right: 450 },
-  { date: "2024-06-21", left: 169, right: 210 },
-  { date: "2024-06-22", left: 317, right: 270 },
-  { date: "2024-06-23", left: 480, right: 530 },
-  { date: "2024-06-24", left: 132, right: 180 },
-  { date: "2024-06-25", left: 141, right: 190 },
-  { date: "2024-06-26", left: 434, right: 380 },
-  { date: "2024-06-27", left: 448, right: 490 },
-  { date: "2024-06-28", left: 149, right: 200 },
-  { date: "2024-06-29", left: 103, right: 160 },
-  { date: "2024-06-30", left: 446, right: 400 },
+  { date: "2024-04-01", car: 222, bus: 150, truck: 100, violations: 472 },
+  { date: "2024-04-02", car: 200, bus: 130, truck: 90, violations: 420 },
+  { date: "2024-04-03", car: 180, bus: 120, truck: 80, violations: 380 },
+  { date: "2024-04-04", car: 160, bus: 110, truck: 70, violations: 340 },
+  { date: "2024-04-05", car: 140, bus: 100, truck: 60, violations: 300 },
+  { date: "2024-04-06", car: 120, bus: 90, truck: 50, violations: 260 },
+  { date: "2024-04-07", car: 100, bus: 80, truck: 40, violations: 220 },
+  { date: "2024-04-08", car: 80, bus: 70, truck: 30, violations: 180 },
+  { date: "2024-04-09", car: 60, bus: 60, truck: 20, violations: 140 },
+  { date: "2024-04-10", car: 40, bus: 50, truck: 10, violations: 100 },
+  { date: "2024-04-11", car: 20, bus: 40, truck: 0, violations: 60 },
+  { date: "2024-04-12", car: 0, bus: 30, truck: 0, violations: 30 },
+  { date: "2024-04-13", car: 0, bus: 20, truck: 0, violations: 20 },
+  { date: "2024-04-14", car: 0, bus: 10, truck: 0, violations: 10 },
+  { date: "2024-04-15", car: 0, bus: 0, truck: 0, violations: 0 },
 ];
 
 const chartConfig = {
   violations: {
-    label: "Violations",
+    label: "Total",
+    color: "hsl(var(--chart-4))",
   },
-  left: {
-    label: "Left",
+  car: {
+    label: "Car",
     color: "hsl(var(--chart-1))",
   },
-  right: {
-    label: "Right",
+  bus: {
+    label: "Bus",
     color: "hsl(var(--chart-3))",
+  },
+  truck: {
+    label: "Truck",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
 export default function LineChartComponent() {
   const [activeChart, setActiveChart] =
-    React.useState<keyof typeof chartConfig>("right");
+    React.useState<keyof typeof chartConfig>("car");
 
   const total = React.useMemo(
     () => ({
-      left: chartData.reduce((acc, curr) => acc + curr.left, 0),
-      right: chartData.reduce((acc, curr) => acc + curr.right, 0),
+      car: chartData.reduce((acc, curr) => acc + curr.car, 0),
+      bus: chartData.reduce((acc, curr) => acc + curr.bus, 0),
+      truck: chartData.reduce((acc, curr) => acc + curr.truck, 0),
+      violations: chartData.reduce((acc, curr) => acc + curr.violations, 0),
     }),
     []
   );
@@ -144,12 +79,13 @@ export default function LineChartComponent() {
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>Line Chart</CardTitle>
           <CardDescription>
-            Showing the total number of cars crossed the yellow line on the{" "}
-            {activeChart} side over time.
+            Showing the total number of violations for{" "}
+            {activeChart === "violations" ? "all vehicle" : activeChart} over
+            time.
           </CardDescription>
         </div>
         <div className="flex">
-          {["left", "right"].map(key => {
+          {["car", "bus", "truck", "violations"].map(key => {
             const chart = key as keyof typeof chartConfig;
             return (
               <button

@@ -1,17 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -21,41 +13,42 @@ import {
 
 const chartData = [
   {
-    violatation: "No Violate",
-    numberOfCars: 275,
-    fill: "var(--color-noViolate)",
+    violationType: "overtaking from left",
+    numberOfViolations: 275,
+    fill: "var(--color-overtakingFromLeft)",
   },
   {
-    violatation: "Violate",
-    numberOfCars: 200,
-    fill: "var(--color-violate)",
+    violationType: "overtaking from right",
+    numberOfViolations: 200,
+    fill: "var(--color-overtakingFromRight)",
   },
 ];
 
+// TODO: Use select option to select either violation_type or vehicle_type
+
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  violationType: {
+    label: "Violation Type",
   },
-  noViolate: {
+  overtakingFromLeft: {
     color: "hsl(var(--chart-1))",
   },
-  violate: {
+  overtakingFromRight: {
     color: "hsl(var(--chart-3))",
   },
 } satisfies ChartConfig;
 
 export default function PieChartComponent() {
-  const totalCars = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.numberOfCars, 0);
+  const totalViolations = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.numberOfViolations, 0);
   }, []);
 
   return (
     <Card className="flex flex-col justify-center h-full">
       <CardHeader className="items-center pb-0 pt-8">
         <CardTitle>Pie Chart</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
+      <CardContent className="pb-0">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"
@@ -63,13 +56,15 @@ export default function PieChartComponent() {
           <PieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={
+                <ChartTooltipContent nameKey="numberOfViolations" hideLabel />
+              }
             />
             <Pie
               data={chartData}
-              dataKey="numberOfCars"
-              nameKey="violatation"
-              innerRadius={60}
+              dataKey="numberOfViolations"
+              nameKey="violationType"
+              innerRadius={75}
               strokeWidth={5}
             >
               <Label
@@ -87,14 +82,14 @@ export default function PieChartComponent() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalCars.toLocaleString()}
+                          {totalViolations.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Number of cars
+                          Number of violations
                         </tspan>
                       </text>
                     );
@@ -105,15 +100,6 @@ export default function PieChartComponent() {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm pb-16">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up
-          <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
   );
 }

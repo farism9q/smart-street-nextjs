@@ -8,13 +8,27 @@ import BarChartComponent from "./(charts)/bar-chart";
 import LineChartComponent from "./(charts)/line-chart";
 import PieChartComponent from "./(charts)/pie-chart";
 import MiddleContent from "./(charts)/middle-content";
+import { useEffect, useState } from "react";
+import { getAllDetections } from "@/actions/detection";
+import { detection } from "@/types/detection";
 
 export default function DashboardPage() {
+  const [detections, setDetections] = useState<detection[]>([]);
+
+  useEffect(() => {
+    async function fetchDetections() {
+      const data = await getAllDetections();
+
+      setDetections(data);
+    }
+    fetchDetections();
+  }, []);
+
   const { middleContent, setMiddleContent } = useMiddleContent();
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/50 w-11/12 rounded-lg p-4 mb-24">
+      <div className="mx-auto bg-primary/50 w-11/12 rounded-lg p-4 mb-24">
         <h1 className="text-2xl font-bold text-center">Smart Street</h1>
       </div>
 
@@ -28,18 +42,13 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 min-h-[450px]">
-        <div className="rounded-lg xl:col-span-2 order-1 xl:order-2">
-          <MiddleContent />
-        </div>
+      <div className="rounded-lg">
+        <MiddleContent detections={detections} />
+      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-[450px]">
+        <BarChartComponent />
 
-        <div className="order-2 xl:order-1">
-          <BarChartComponent />
-        </div>
-
-        <div className="order-3">
-          <PieChartComponent />
-        </div>
+        <PieChartComponent />
       </div>
 
       <LineChartComponent />
