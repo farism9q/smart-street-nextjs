@@ -41,7 +41,7 @@ export default function Map({ detections }: MapProps) {
           zoom={13}
           scrollWheelZoom={false}
         >
-          {detections.map(detection => (
+          {detections?.map(detection => (
             <CircleMarker
               key={detection._id}
               center={[detection.latitude, detection.longitude]}
