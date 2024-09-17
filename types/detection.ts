@@ -1,4 +1,5 @@
 export type detection = {
+  _id: string;
   time: string;
   date: Date;
   license_plate_number: string;

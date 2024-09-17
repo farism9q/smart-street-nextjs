@@ -43,6 +43,7 @@ export default function Map({ detections }: MapProps) {
         >
           {detections.map(detection => (
             <CircleMarker
+              key={detection._id}
               center={[detection.latitude, detection.longitude]}
               pathOptions={{ color: "red" }}
               radius={10}

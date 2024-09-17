@@ -4,10 +4,11 @@ import Detection from "@/models/detection";
 import { detection } from "@/types/detection";
 
 export async function getAllDetections() {
-  const data = await Detection.find().select("-__v, -_id");
+  const data = await Detection.find().select("-__v");
 
   const formattedData = data.map(detection => {
     return {
+      _id: detection._id.toString(),
       date: detection.date,
       time: detection.time,
       license_plate_number: detection.license_plate_number,
