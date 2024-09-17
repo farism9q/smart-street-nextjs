@@ -38,7 +38,7 @@ export default function Map({ detections }: MapProps) {
         <MapContainer
           className="min-h-[500px] min-w-[500px] w-full h-full"
           center={[coordinates.lat, coordinates.lng]}
-          zoom={13}
+          zoom={12}
           scrollWheelZoom={false}
         >
           {detections?.map(detection => (

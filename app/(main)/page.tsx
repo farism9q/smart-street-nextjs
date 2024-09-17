@@ -1,8 +1,7 @@
 "use client";
 
-import { useMiddleContent } from "@/providers/middle-content-provider";
-
-import { Switch } from "@/components/ui/switch";
+// import { useMiddleContent } from "@/providers/middle-content-provider";
+// import { Switch } from "@/components/ui/switch";
 import AreaChartComponent from "./(charts)/area-chart";
 import BarChartComponent from "./(charts)/bar-chart";
 import LineChartComponent from "./(charts)/line-chart";
@@ -24,7 +23,7 @@ export default function DashboardPage() {
     fetchDetections();
   }, []);
 
-  const { middleContent, setMiddleContent } = useMiddleContent();
+  // const { middleContent } = useMiddleContent();
 
   return (
     <div className="space-y-6">
@@ -32,15 +31,17 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-center">Smart Street</h1>
       </div>
 
-      <div className="flex justify-end items-center">
-        <p className="text-lg font-bold mr-2">{middleContent.toUpperCase()}</p>
-        <Switch
+      {/* <div className="flex justify-end items-center">
+        <p className="text-lg font-bold mr-2">{middleContent.toUpperCase()}</p> */}
+
+      {/* This might not be needed */}
+      {/* <Switch
           className="data-[state=unchecked]:bg-primary"
           onCheckedChange={() => {
             setMiddleContent(middleContent === "map" ? "live" : "map");
           }}
         />
-      </div>
+      </div> */}
 
       <div className="rounded-lg">
         <MiddleContent detections={detections} />
