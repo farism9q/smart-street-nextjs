@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const detectionSchema = new mongoose.Schema(
+const violationSchema = new mongoose.Schema(
   {
     date: { type: Date, required: true },
     time: { type: String, required: true },
@@ -12,8 +12,8 @@ const detectionSchema = new mongoose.Schema(
     street_name: { type: String, required: true },
     zip_code: { type: String, required: true },
   },
-  { collection: "Violations_detected" }
-); //
+  { collection: "violations" }
+);
 
-export default mongoose.models.Detection ||
-  mongoose.model("Detection", detectionSchema);
+export default mongoose.models.violations ||
+  mongoose.model("violations", violationSchema);

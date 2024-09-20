@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
 import "@/app/styles/leaflet.css";
-import { detection } from "@/types/detection";
+import { violation } from "@/types/violation";
 
 type MapProps = {
-  detections: detection[];
+  detections: violation[];
 };
 
 export default function Map({ detections }: MapProps) {

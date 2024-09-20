@@ -8,15 +8,16 @@ import LineChartComponent from "./(charts)/line-chart";
 import PieChartComponent from "./(charts)/pie-chart";
 import MiddleContent from "./(charts)/middle-content";
 import { useEffect, useState } from "react";
-import { getAllDetections } from "@/actions/detection";
-import { detection } from "@/types/detection";
+import { createViolation, getAllViolation } from "@/actions/violation";
+import { violation } from "@/types/violation";
+import { insertEmbedding } from "@/actions/pinecone";
 
 export default function DashboardPage() {
-  const [detections, setDetections] = useState<detection[]>([]);
+  const [detections, setDetections] = useState<violation[]>([]);
 
   useEffect(() => {
     async function fetchDetections() {
-      const data = await getAllDetections();
+      const data = await getAllViolation();
 
       setDetections(data);
     }

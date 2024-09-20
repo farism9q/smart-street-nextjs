@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { detection } from "@/types/detection";
+import { detection } from "@/types/violation";
 
 // This function will be used to generate the data for the area chart
 function generateAreaChartDate(detections: detection[]) {}

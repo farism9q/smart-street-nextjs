@@ -25,6 +25,7 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      dbName: "smart_street",
     };
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then(mongoose => {
       console.log("DB connected");

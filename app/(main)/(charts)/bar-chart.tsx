@@ -9,7 +9,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { detection } from "@/types/detection";
+import { detection } from "@/types/violation";
 
 // This function will be used to generate the data for the bar chart
 function generateBarChartData(detections: detection[]) {

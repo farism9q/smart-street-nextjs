@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import { useMiddleContent } from "@/providers/middle-content-provider";
-import { detection } from "@/types/detection";
+import { detection } from "@/types/violation";
 
 const Map = dynamic(() => import("@/components/map"), { ssr: false });
 

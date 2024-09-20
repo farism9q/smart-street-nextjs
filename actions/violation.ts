@@ -1,25 +1,25 @@
 "use server";
 import { format } from "date-fns";
-import Detection from "@/models/detection";
-import { detection } from "@/types/detection";
+import Violation from "@/models/violation";
+import { violation } from "@/types/violation";
 
-export async function getAllDetections() {
-  const data = await Detection.find().select("-__v");
+export async function getAllViolation() {
+  const data = await Violation.find().select("-__v");
 
-  const formattedData = data.map(detection => {
+  const formattedData = data.map(violation => {
     return {
-      _id: detection._id.toString(),
-      date: detection.date,
-      time: detection.time,
-      license_plate_number: detection.license_plate_number,
-      violation_type: detection.violation_type,
-      vehicle_type: detection.vehicle_type,
-      longitude: detection.longitude,
-      latitude: detection.latitude,
-      street_name: detection.street_name,
-      zip_code: detection.zip_code,
-      month: format(new Date(detection.date), "LLL"),
-    } as detection;
+      _id: violation._id.toString(),
+      date: violation.date,
+      time: violation.time,
+      license_plate_number: violation.license_plate_number,
+      violation_type: violation.violation_type,
+      vehicle_type: violation.vehicle_type,
+      longitude: violation.longitude,
+      latitude: violation.latitude,
+      street_name: violation.street_name,
+      zip_code: violation.zip_code,
+      month: format(new Date(violation.date), "LLL"),
+    } as violation;
   });
 
   return formattedData;
@@ -27,8 +27,8 @@ export async function getAllDetections() {
 
 // The acutal insertion will be handled in other place (in python),
 // and this function will be used to insert the data only for testing purposes
-export async function createDetection() {
-  const detections = [
+export async function createViolation() {
+  const violation = [
     {
       time: "12:00",
       date: new Date(),
@@ -53,7 +53,7 @@ export async function createDetection() {
     },
   ];
 
-  Detection.insertMany(detections)
+  Violation.insertMany(violation)
     .then(docs => {
       console.log("Documents inserted:", docs);
     })
@@ -62,9 +62,9 @@ export async function createDetection() {
     });
 }
 
-// This is same as createDetection, it is used to delete all the data only for testing purposes
-export async function deleteDetection() {
-  const data = await Detection.deleteMany();
+// This is same as createviolation, it is used to delete all the data only for testing purposes
+export async function deleteviolation() {
+  const data = await Violation.deleteMany();
 
   console.log(data);
 

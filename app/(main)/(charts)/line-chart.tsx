@@ -16,7 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { detection } from "@/types/detection";
+import { detection } from "@/types/violation";
 
 // This function will be used to generate the data for the line chart
 function generateLineChartData(detections: detection[]) {}
