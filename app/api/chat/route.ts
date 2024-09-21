@@ -35,8 +35,6 @@ export async function POST(req: Request) {
   const query =
     messages[0].content + " " + messages[messages.length - 1].content;
 
-  console.log(query);
-
   const embeddings = await getEmbedding(query);
 
   const { matches } = await searchEmbedding(embeddings);
@@ -44,8 +42,6 @@ export async function POST(req: Request) {
   const metadata = matches
     .map(data => data.metadata)
     .filter(Boolean) as Metadata[];
-
-  console.log(metadata);
 
   const question = prepareQuestionToGPT(query, metadata);
 
@@ -55,8 +51,6 @@ export async function POST(req: Request) {
   };
 
   messages.push(instructionMessage);
-
-  console.log(messages);
 
   const result = await streamText({
     model: openai("gpt-4-turbo"),

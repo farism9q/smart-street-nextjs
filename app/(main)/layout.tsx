@@ -1,16 +1,12 @@
 "use client";
 
-import { Chatbot } from "@/components/chatbot";
 import { ModeToggle } from "@/components/theme-toggle";
 import { MOBILE_WIDTH } from "@/lib/utils";
 import { useChatbot } from "@/providers/chatbot-provider";
-import { useEffect, useState } from "react";
 import { useMedia } from "react-use";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  const { fullScreen, active, toggleActive, toggleFullScreen } = useChatbot();
-
-  const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
+  const { fullScreen } = useChatbot();
 
   return (
     <main className="flex min-h-screen flex-col">
@@ -28,19 +24,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
 
-      <div className="flex flex-col space-y-4 mt-16">
-        {/* {!fullScreen && (
-          <div className="md:w-[760px] lg:w-[870px] mx-auto duration-300 animate-in animate fade-in-5 slide-in-from-bottom-2.5">
-            <span
-              className={
-                "absolute -left-16 -top-16 h-60 w-60 rounded-full z-50 blur-3xl animate-blob animation-delay-300 bg-primary/50 opacity-100"
-              }
-            />
-          </div>
-        )} */}
-
-        {children}
-      </div>
+      <div className="flex flex-col space-y-4 mt-16">{children}</div>
     </main>
   );
 };

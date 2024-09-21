@@ -1,7 +1,3 @@
-// const PINECONE_INDEX = "semantic-search";
-// const PINECONE_CLOUD = "aws";
-// const PINECONE_REGION = "us-east-1";
-
 import { Pinecone } from "@pinecone-database/pinecone";
 
 const api_key = process.env.PINECONE_API_KEY!;

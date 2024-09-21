@@ -4,32 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useChat } from "ai/react";
-import { Message } from "ai";
+
 import {
   ArrowLeft,
-  ArrowUpRight,
   Maximize2Icon,
   SendIcon,
   Trash,
   UserIcon,
   X,
 } from "lucide-react";
-import Link from "next/link";
+
 import { useEffect, useRef } from "react";
 import { Skeleton } from "./ui/skeleton";
 import { MOBILE_WIDTH, cn } from "@/lib/utils";
 import { useChatbot } from "@/providers/chatbot-provider";
 import { useMedia } from "react-use";
-// import { useChatbot } from "@/hooks/use-chatbot";
 
-// const QUICK_QUESTIONS = [
-//   "What type of vehicles cause the most violations?",
-//   "What is the most common violation type?",
-//   "What is the most common time for violations?",
-//   "What is the most common street for violations?",
-//   "What is the most common day for violations?",
-//   "What is the most common month for violations?",
-// ];
 const QUICK_QUESTIONS = [
   "ما هي أنواع المركبات التي تسبب أكثر المخالفات؟",
   "ما هو نوع المخالفة الأكثر شيوعًا؟",
@@ -39,9 +29,6 @@ const QUICK_QUESTIONS = [
   "ما هو الشهر الأكثر شيوعًا للمخالفات؟",
 ];
 
-// type ChatbotProps = {
-//   isMobile: boolean;
-// };
 
 export function Chatbot() {
   const {
@@ -191,10 +178,6 @@ export function Chatbot() {
       <form
         onSubmit={e => {
           handleSubmit(e);
-          // setMessages((preMessages: Message[]) => [
-          //   ...preMessages,
-          //   messages[messages.length - 1],
-          // ]);
         }}
         className="p-4 bg-white bg-opacity-10"
       >
