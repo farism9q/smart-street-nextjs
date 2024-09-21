@@ -56,29 +56,19 @@ export function Chatbot() {
   const { toggleActive, toggleFullScreen, fullScreen } = useChatbot();
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
+  const lastMessage = messages[messages.length - 1]?.content || "";
+
   useEffect(() => {
     scrollToBottom();
-
-    // setMessages((preMessages: Message[]) => [...preMessages]);
-
-    // if (messages[messages.length - 1]?.role === "assistant") {
-    //   setMessages((preMessages: Message[]) => [
-    //     ...preMessages,
-    //     {
-    //       role: messages[messages.length - 1].role,
-    //       content: messages[messages.length - 1].content,
-    //       id: messages[messages.length - 1].id,
-    //     },
-    //   ]);
-    // }
-  }, [messages]);
+  }, [lastMessage]);
 
   const isLoading = messages[messages.length - 1]?.role === "user";
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
@@ -121,7 +111,7 @@ export function Chatbot() {
         {fullScreen && (
           <Button
             variant="ghost"
-            className="pl-2 items-center"
+            className="items-center"
             onClick={() => {
               toggleFullScreen(false);
 
@@ -133,12 +123,15 @@ export function Chatbot() {
             <ArrowLeft className="size-8" />
           </Button>
         )}
-        <h2 className="text-2xl font-bold text-center">Chatbot</h2>
+        <h2 className="text-gradient text-2xl font-bold text-center">
+          Chatbot
+        </h2>
         <div />
       </div>
       <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
-        {messages?.map(message => (
+        {messages?.map((message, index) => (
           <div
+            ref={index === messages.length - 1 ? lastMessageRef : null}
             key={message.id}
             className={`flex ${
               message.role === "user" ? "justify-end" : "justify-start"
@@ -217,7 +210,7 @@ export function Chatbot() {
             <Trash className="h-4 w-4" />
           </Button>
           <Input
-            className="border-none focus:ring-2 focus:ring-pink-500 placeholder:text-right"
+            className="text-base border-none focus:ring-2 focus:ring-pink-500 placeholder:text-right"
             value={input}
             placeholder="... أسال هنا"
             onChange={handleInputChange}
@@ -226,7 +219,6 @@ export function Chatbot() {
             type="submit"
             size="icon"
             className="bg-white bg-opacity-20 text-white"
-            // disabled={isLoading}
           >
             <SendIcon className="h-4 w-4" />
             <span className="sr-only">Send</span>

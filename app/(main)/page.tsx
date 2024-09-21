@@ -62,8 +62,8 @@ export default function DashboardPage() {
                   toggleFullScreen(true);
                 }
               }}
-              className="w-32 h-12 hover:scale-105 cursor-pointer absolute right-2 bottom-2 z-[100]
-                flex justify-center items-center gap-2 bg-black p-2 rounded-lg shadow-lg"
+              className="w-32 h-12 hover:scale-105 cursor-pointer absolute right-0 bottom-2
+                flex justify-center items-center gap-2 bg-primary/10 p-2 rounded-lg shadow-lg"
             >
               <p className="font-extrabold tracking-widest uppercase bg-clip-text text-transparent bg-[linear-gradient(to_right,theme(colors.zinc.600),theme(colors.yellow.400),theme(colors.yellow.500),theme(colors.zinc.600),theme(colors.yellow.400),theme(colors.yellow.500),theme(colors.zinc.700))] bg-[length:200%_auto] animate-gradient">
                 Chatbot
@@ -107,20 +107,18 @@ export default function DashboardPage() {
       </div> */}
 
         {!fullScreen && (
-          <>
+          <div className="flex flex-col gap-y-6">
             <div className="rounded-lg">
               <MiddleContent violations={violations} />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-[450px]">
-              <BarChartComponent />
+            <BarChartComponent />
 
-              <PieChartComponent />
-            </div>
+            <PieChartComponent />
 
             <LineChartComponent />
             <AreaChartComponent />
-          </>
+          </div>
         )}
       </div>
     </div>

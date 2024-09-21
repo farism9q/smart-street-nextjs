@@ -143,3 +143,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .text-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-br from-primary/70 to-zinc-600;
+  }
+}
