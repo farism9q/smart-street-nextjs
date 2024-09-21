@@ -6,7 +6,7 @@ import { useChatbot } from "@/providers/chatbot-provider";
 import { useEffect, useState } from "react";
 import { useMedia } from "react-use";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { fullScreen } = useChatbot();
 
   return (
@@ -35,4 +35,4 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default layout;
+export default MainLayout;
