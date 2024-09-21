@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
 import "@/app/styles/leaflet.css";
-import { violation } from "@/types/violation";
+import { ViolationType } from "@/types/violation";
 
 type MapProps = {
-  detections: violation[];
+  violation: ViolationType[];
 };
 
-export default function Map({ detections }: MapProps) {
+export default function Map({ violation }: MapProps) {
   const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
@@ -41,10 +41,10 @@ export default function Map({ detections }: MapProps) {
           zoom={12}
           scrollWheelZoom={false}
         >
-          {detections?.map(detection => (
+          {violation?.map(violation => (
             <CircleMarker
-              key={detection._id}
-              center={[detection.latitude, detection.longitude]}
+              key={violation._id}
+              center={[violation.latitude, violation.longitude]}
               pathOptions={{ color: "red" }}
               radius={10}
             >
@@ -53,20 +53,20 @@ export default function Map({ detections }: MapProps) {
                   <p className="text-lg font-semibold">
                     A{" "}
                     <span className="text-blue-500">
-                      {detection.vehicle_type}
+                      {violation.vehicle_type}
                     </span>{" "}
                     detected
                   </p>
                   <p className="text-sm">
                     Coordinates:{" "}
                     <span className="font-bold text-green-500">
-                      {detection.latitude}, {detection.longitude}
+                      {violation.latitude}, {violation.longitude}
                     </span>
                   </p>
                   <p className="text-sm">
                     Violation:{" "}
                     <span className="font-bold text-red-500">
-                      {detection.violation_type}
+                      {violation.violation_type}
                     </span>
                   </p>
                 </div>

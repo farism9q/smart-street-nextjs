@@ -1,4 +1,4 @@
-export type violation = {
+export type ViolationType = {
   _id: string;
   time: string;
   date: Date;
@@ -8,5 +8,4 @@ export type violation = {
   longitude: number;
   latitude: number;
   street_name: string;
-  zip_code: string;
 };

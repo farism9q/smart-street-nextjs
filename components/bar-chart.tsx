@@ -9,10 +9,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { detection } from "@/types/violation";
+import { ViolationType } from "@/types/violation";
 
 // This function will be used to generate the data for the bar chart
-function generateBarChartData(detections: detection[]) {
+function generateBarChartData(violations: ViolationType[]) {
   // const vehicleCountsByMonth = {
   //   Jan: { car: 0, truck: 0, bus: 0 },
   //   Feb: { car: 0, truck: 0, bus: 0 },

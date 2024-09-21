@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.61",
+    "@pinecone-database/pinecone": "^3.0.3",
     "@prisma/client": "^5.19.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-scroll-area": "^1.1.0",
@@ -16,6 +18,8 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@xenova/transformers": "^2.17.2",
+    "ai": "^3.3.44",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -25,11 +29,15 @@
     "mongoose": "^8.6.2",
     "next": "14.2.7",
     "next-themes": "^0.3.0",
+    "openai": "^4.62.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
+    "react-use": "^17.5.1",
     "recharts": "^2.13.0-alpha.5",
-    "tailwind-merge": "^2.5.2"
+    "tailwind-merge": "^2.5.2",
+    "uuidv4": "^6.2.13",
+    "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.12",

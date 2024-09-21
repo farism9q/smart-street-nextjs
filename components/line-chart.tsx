@@ -16,10 +16,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { detection } from "@/types/violation";
+import { ViolationType } from "@/types/violation";
 
 // This function will be used to generate the data for the line chart
-function generateLineChartData(detections: detection[]) {}
+function generateLineChartData(violations: ViolationType[]) {}
 
 // Since there is no data to be used for the line chart, we will use the below dummy data
 const chartData = [

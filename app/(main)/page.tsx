@@ -2,41 +2,103 @@
 
 // import { useMiddleContent } from "@/providers/middle-content-provider";
 // import { Switch } from "@/components/ui/switch";
-import AreaChartComponent from "./(charts)/area-chart";
-import BarChartComponent from "./(charts)/bar-chart";
-import LineChartComponent from "./(charts)/line-chart";
-import PieChartComponent from "./(charts)/pie-chart";
-import MiddleContent from "./(charts)/middle-content";
+import { useMedia } from "react-use";
+
+import AreaChartComponent from "../../components/area-chart";
+import BarChartComponent from "../../components/bar-chart";
+import LineChartComponent from "../../components/line-chart";
+import PieChartComponent from "../../components/pie-chart";
+import MiddleContent from "./middle-content";
 import { useEffect, useState } from "react";
-import { createViolation, getAllViolation } from "@/actions/violation";
-import { violation } from "@/types/violation";
-import { insertEmbedding } from "@/actions/pinecone";
+import {
+  createViolation,
+  deleteAllViolation,
+  getAllViolation,
+} from "@/actions/violation";
+
+import { ViolationType } from "@/types/violation";
+import {
+  deleteAllEmbeddings,
+  insertEmbedding,
+  searchEmbedding,
+} from "@/actions/pinecone";
+// import { generateResponse } from "@/actions/openai";
+import { Button } from "@/components/ui/button";
+import { Loader } from "lucide-react";
+import Link from "next/link";
+import { Chatbot } from "@/components/chatbot";
+// import { useChatbot } from "@/hooks/use-chatbot";
+import { MOBILE_WIDTH, cn } from "@/lib/utils";
+import { useChatbot } from "@/providers/chatbot-provider";
 
 export default function DashboardPage() {
-  const [detections, setDetections] = useState<violation[]>([]);
+  const [violations, setViolations] = useState<ViolationType[]>([]);
+  // const [someOperationGoingOn, setSomeOperationGoingOn] = useState(false);
+  const { active, toggleActive, fullScreen, toggleFullScreen, messages } =
+    useChatbot();
 
   useEffect(() => {
-    async function fetchDetections() {
+    async function fetchViolations() {
       const data = await getAllViolation();
 
-      setDetections(data);
+      setViolations(data);
     }
-    fetchDetections();
+    fetchViolations();
   }, []);
 
-  // const { middleContent } = useMiddleContent();
+  const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
 
   return (
-    <div className="space-y-6">
-      <div className="mx-auto bg-primary/50 w-11/12 rounded-lg p-4 mb-24">
-        <h1 className="text-2xl font-bold text-center">Smart Street</h1>
-      </div>
+    <div className="flex flex-col px-4">
+      <div className={cn("space-y-6 relative", active ? "w-[70%]" : "w-full")}>
+        <div className="fixed bottom-4 right-4 w-[27%]">
+          {active ? (
+            <Chatbot />
+          ) : (
+            <div
+              onClick={() => {
+                toggleActive();
+                if (isMobile) {
+                  toggleFullScreen(true);
+                }
+              }}
+              className="w-32 h-12 hover:scale-105 cursor-pointer absolute right-2 bottom-2 z-[100]
+                flex justify-center items-center gap-2 bg-black p-2 rounded-lg shadow-lg"
+            >
+              <p className="font-extrabold tracking-widest uppercase bg-clip-text text-transparent bg-[linear-gradient(to_right,theme(colors.zinc.600),theme(colors.yellow.400),theme(colors.yellow.500),theme(colors.zinc.600),theme(colors.yellow.400),theme(colors.yellow.500),theme(colors.zinc.700))] bg-[length:200%_auto] animate-gradient">
+                Chatbot
+              </p>
+            </div>
+          )}
+        </div>
 
-      {/* <div className="flex justify-end items-center">
+        {/* {someOperationGoingOn && (
+          <div className="absolute -top-32 left-1/2">
+            <Loader className="mx-auto animate-spin" size={64} />
+          </div>
+        )} */}
+
+        {/* <div className="flex justify-center items-center bg-primary/50 w-full gap-4 rounded-lg p-4 mb-24">
+          <Button
+            variant={"ghost"}
+            className="bg-green-500 text-green-50"
+            onClick={async () => {
+              setSomeOperationGoingOn(true);
+              const violations = await createViolation();
+              console.log(violations);
+              // setViolations(violations);
+              setSomeOperationGoingOn(false);
+            }}
+          >
+            Add Violations
+          </Button>
+        </div> */}
+
+        {/* <div className="flex justify-end items-center">
         <p className="text-lg font-bold mr-2">{middleContent.toUpperCase()}</p> */}
 
-      {/* This might not be needed */}
-      {/* <Switch
+        {/* This might not be needed */}
+        {/* <Switch
           className="data-[state=unchecked]:bg-primary"
           onCheckedChange={() => {
             setMiddleContent(middleContent === "map" ? "live" : "map");
@@ -44,17 +106,23 @@ export default function DashboardPage() {
         />
       </div> */}
 
-      <div className="rounded-lg">
-        <MiddleContent detections={detections} />
-      </div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-[450px]">
-        <BarChartComponent />
+        {!fullScreen && (
+          <>
+            <div className="rounded-lg">
+              <MiddleContent violations={violations} />
+            </div>
 
-        <PieChartComponent />
-      </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-[450px]">
+              <BarChartComponent />
 
-      <LineChartComponent />
-      <AreaChartComponent />
+              <PieChartComponent />
+            </div>
+
+            <LineChartComponent />
+            <AreaChartComponent />
+          </>
+        )}
+      </div>
     </div>
   );
 }

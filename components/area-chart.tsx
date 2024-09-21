@@ -25,10 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { detection } from "@/types/violation";
+import { ViolationType } from "@/types/violation";
 
 // This function will be used to generate the data for the area chart
-function generateAreaChartDate(detections: detection[]) {}
+function generateAreaChartDate(violations: ViolationType[]) {}
 
 // Since there is no data to be used for the area chart, we will use the below dummy data
 // Later, this data will be fetched from the database

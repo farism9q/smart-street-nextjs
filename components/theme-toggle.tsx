@@ -10,7 +10,7 @@ export function ModeToggle() {
   const { setTheme, theme } = useTheme();
 
   return (
-    <div className="flex items-center justify-between gap-x-2">
+    <div className="flex items-center gap-x-2">
       <Button
         variant="ghost"
         size="icon"

@@ -12,8 +12,8 @@ const violationSchema = new mongoose.Schema(
     street_name: { type: String, required: true },
     zip_code: { type: String, required: true },
   },
-  { collection: "violations" }
+  { collection: "Violations_detected" }
 );
 
-export default mongoose.models.violations ||
-  mongoose.model("violations", violationSchema);
+export default mongoose.models.Violations_detected ||
+  mongoose.model("Violations_detected", violationSchema);

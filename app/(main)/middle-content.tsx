@@ -3,18 +3,18 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import { useMiddleContent } from "@/providers/middle-content-provider";
-import { detection } from "@/types/violation";
+import { ViolationType } from "@/types/violation";
 
 const Map = dynamic(() => import("@/components/map"), { ssr: false });
 
 type MiddleContentProps = {
-  detections: detection[];
+  violations: ViolationType[];
 };
-const MiddleContent = ({ detections }: MiddleContentProps) => {
+const MiddleContent = ({ violations }: MiddleContentProps) => {
   const { middleContent } = useMiddleContent();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  console.log(detections);
+  console.log(violations);
 
   useEffect(() => {
     navigator.mediaDevices
@@ -30,7 +30,7 @@ const MiddleContent = ({ detections }: MiddleContentProps) => {
   return (
     <div className="min-h-[500px] max-h-[500px] overflow-hidden">
       {middleContent === "map" ? (
-        <Map detections={detections} />
+        <Map violation={violations} />
       ) : (
         <video
           ref={videoRef}

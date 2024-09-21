@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./styles/globals.css";
 import { MiddleContentProvider } from "@/providers/middle-content-provider";
+import { ChatbotProvider } from "@/providers/chatbot-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <MiddleContentProvider>{children}</MiddleContentProvider>
+          <MiddleContentProvider>
+            <ChatbotProvider>{children}</ChatbotProvider>
+          </MiddleContentProvider>
         </ThemeProvider>
       </body>
     </html>
