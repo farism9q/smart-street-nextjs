@@ -6,12 +6,7 @@ import BarChartComponent from "../../components/bar-chart";
 import LineChartComponent from "../../components/line-chart";
 import PieChartComponent from "../../components/pie-chart";
 import { useEffect, useState } from "react";
-import {
-  getAllViolation,
-  getViolationsStats,
-  getViolationByDate,
-  createViolation,
-} from "@/actions/violation";
+import { getAllViolation } from "@/actions/violation";
 
 import { ViolationType } from "@/types/violation";
 import { Chatbot } from "@/components/chatbot";
@@ -21,26 +16,16 @@ import { useChatbot } from "@/providers/chatbot-provider";
 import dynamic from "next/dynamic";
 const Map = dynamic(() => import("@/components/map"), { ssr: false });
 
-import { Button } from "@/components/ui/button";
-
 export default function DashboardPage() {
   const [violations, setViolations] = useState<ViolationType[]>([]);
-  const [stats, setStats] = useState<any>({});
 
   const { active, toggleActive, fullScreen, toggleFullScreen } = useChatbot();
 
   useEffect(() => {
     async function fetchViolations() {
       const data = await getAllViolation();
-      const violationAndVehicleTypes = await getViolationsStats();
-      const violationsByDate = await getViolationByDate({
-        year: true,
-        month: true,
-        day: true,
-      });
 
       setViolations(data);
-      setStats([violationAndVehicleTypes, violationsByDate]);
     }
     fetchViolations();
   }, []);
@@ -48,7 +33,6 @@ export default function DashboardPage() {
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
 
   console.log("violations", violations);
-  console.log("stats", stats);
 
   return (
     <div className="flex flex-col px-4">
@@ -58,7 +42,8 @@ export default function DashboardPage() {
             <Chatbot />
           ) : (
             <div
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 toggleActive();
                 if (isMobile) {
                   toggleFullScreen(true);
@@ -99,7 +84,7 @@ export default function DashboardPage() {
 
         {!fullScreen && (
           <div className="flex flex-col gap-y-6">
-            <div className="rounded-lg">
+            <div className="min-h-[500px] max-h-[500px] overflow-hidden rounded-lg">
               <Map violation={violations} />
             </div>
 

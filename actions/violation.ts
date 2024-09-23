@@ -256,9 +256,12 @@ export async function getViolationByDate({
   const violationsDate = await Violation.aggregate([
     {
       $project: {
-        year: { $year: "$date" },
-        month: { $month: "$date" },
-        day: { $dayOfMonth: "$date" },
+        date: {
+          $toDate: "$date",
+        },
+        year: { $year: { $toDate: "$date" } },
+        month: { $month: { $toDate: "$date" } },
+        day: { $dayOfMonth: { $toDate: "$date" } },
       },
     },
     {
@@ -270,10 +273,10 @@ export async function getViolationByDate({
     },
     {
       $project: {
-        _id: 0, // To exclude the _id field
-        year: obj.year == false ? 0 : 1,
-        month: obj.month == false ? 0 : 1,
-        day: obj.day == false ? 0 : 1,
+        _id: 0, // Exclude the _id field
+        year: obj.year === false ? 0 : 1,
+        month: obj.month === false ? 0 : 1,
+        day: obj.day === false ? 0 : 1,
         total: 1,
       },
     },

@@ -156,7 +156,6 @@ export default function Map({ violation }: MapProps) {
               pathOptions={{ color: "red" }}
               radius={10}
             >
-            
               <Popup>
                 <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
                   <p className="text-lg font-semibold">
