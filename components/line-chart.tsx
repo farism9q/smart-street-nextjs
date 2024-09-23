@@ -17,9 +17,33 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ViolationType } from "@/types/violation";
+import { getDateString } from "@/lib/utils";
+import { useData } from "@/hooks/use-data";
 
 // This function will be used to generate the data for the line chart
-function generateLineChartData(violations: ViolationType[]) {}
+function generateLineChartData(violations: ViolationType[]): typeof chartData {
+  const vehicleCountsByDate: Record<string, Record<string, number>> = {};
+
+  violations.forEach(violation => {
+    const date = getDateString(violation.date);
+
+    if (!vehicleCountsByDate[date]) {
+      vehicleCountsByDate[date] = { car: 0, truck: 0, bus: 0, violations: 0 };
+    }
+    vehicleCountsByDate[date][
+      violation.vehicle_type as "car" | "bus" | "truck"
+    ]++;
+    vehicleCountsByDate[date].violations++;
+  });
+
+  return Object.entries(vehicleCountsByDate).map(([date, counts]) => ({
+    bus: counts.bus,
+    car: counts.car,
+    truck: counts.truck,
+    violations: counts.violations,
+    date,
+  }));
+}
 
 // Since there is no data to be used for the line chart, we will use the below dummy data
 const chartData = [
@@ -59,18 +83,26 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function LineChartComponent() {
+export default function LineChartComponent({
+  violations,
+}: {
+  violations: ViolationType[];
+}) {
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("car");
+  const { data: dataType } = useData();
+
+  const data: typeof chartData =
+    dataType === "REAL" ? generateLineChartData(violations) : chartData;
 
   const total = React.useMemo(
     () => ({
-      car: chartData.reduce((acc, curr) => acc + curr.car, 0),
-      bus: chartData.reduce((acc, curr) => acc + curr.bus, 0),
-      truck: chartData.reduce((acc, curr) => acc + curr.truck, 0),
-      violations: chartData.reduce((acc, curr) => acc + curr.violations, 0),
+      car: data.reduce((acc, curr) => acc + curr.car, 0),
+      bus: data.reduce((acc, curr) => acc + curr.bus, 0),
+      truck: data.reduce((acc, curr) => acc + curr.truck, 0),
+      violations: data.reduce((acc, curr) => acc + curr.violations, 0),
     }),
-    []
+    [data]
   );
 
   return (
@@ -112,7 +144,7 @@ export default function LineChartComponent() {
         >
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={data}
             margin={{
               left: 12,
               right: 12,

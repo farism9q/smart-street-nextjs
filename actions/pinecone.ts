@@ -37,7 +37,7 @@ export async function insertEmbedding(violation: ViolationType) {
 export async function searchEmbedding(embeddings: RecordValues) {
   const results = await index.query({
     vector: embeddings,
-    topK: 5,
+    topK: 4,
     includeMetadata: true,
   });
 

@@ -10,30 +10,37 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ViolationType } from "@/types/violation";
+import { getMonth } from "@/lib/utils";
+import { useData } from "@/hooks/use-data";
 
 // This function will be used to generate the data for the bar chart
 function generateBarChartData(violations: ViolationType[]) {
-  // const vehicleCountsByMonth = {
-  //   Jan: { car: 0, truck: 0, bus: 0 },
-  //   Feb: { car: 0, truck: 0, bus: 0 },
-  //   Mar: { car: 0, truck: 0, bus: 0 },
-  //   Apr: { car: 0, truck: 0, bus: 0 },
-  //   May: { car: 0, truck: 0, bus: 0 },
-  //   Jun: { car: 0, truck: 0, bus: 0 },
-  //   Jul: { car: 0, truck: 0, bus: 0 },
-  //   Aug: { car: 0, truck: 0, bus: 0 },
-  //   Sep: { car: 0, truck: 0, bus: 0 },
-  //   Oct: { car: 0, truck: 0, bus: 0 },
-  //   Nov: { car: 0, truck: 0, bus: 0 },
-  //   Dec: { car: 0, truck: 0, bus: 0 },
-  // };
-  // detections.map(detection => {
-  //   const month = format(
-  //     new Date(detection.date),
-  //     "LLL"
-  //   ) as keyof typeof vehicleCountsByMonth;
-  //   vehicleCountsByMonth[month][""];
-  // });
+  const vehicleCountsByMonth = {
+    Jan: { car: 0, truck: 0, bus: 0 },
+    Feb: { car: 0, truck: 0, bus: 0 },
+    Mar: { car: 0, truck: 0, bus: 0 },
+    Apr: { car: 0, truck: 0, bus: 0 },
+    May: { car: 0, truck: 0, bus: 0 },
+    Jun: { car: 0, truck: 0, bus: 0 },
+    Jul: { car: 0, truck: 0, bus: 0 },
+    Aug: { car: 0, truck: 0, bus: 0 },
+    Sep: { car: 0, truck: 0, bus: 0 },
+    Oct: { car: 0, truck: 0, bus: 0 },
+    Nov: { car: 0, truck: 0, bus: 0 },
+    Dec: { car: 0, truck: 0, bus: 0 },
+  };
+
+  violations.forEach(violation => {
+    const month = getMonth(violation.date) as keyof typeof vehicleCountsByMonth;
+    vehicleCountsByMonth[month][
+      violation.vehicle_type as "car" | "bus" | "truck"
+    ]++;
+  });
+
+  return Object.entries(vehicleCountsByMonth).map(([month, counts]) => ({
+    month,
+    ...counts,
+  }));
 }
 
 // Since there is no data to be used for the bar chart, we will use the below dummy data
@@ -61,7 +68,13 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function BarChartComponent() {
+export default function BarChartComponent({
+  violations,
+}: {
+  violations: ViolationType[];
+}) {
+  const { data } = useData();
+
   return (
     <Card className="flex flex-col justify-center h-full">
       <CardHeader className="items-center pb-0 pt-8">
@@ -72,7 +85,12 @@ export default function BarChartComponent() {
           config={chartConfig}
           className="mx-auto aspect-square w-full max-h-[250px]"
         >
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart
+            accessibilityLayer
+            data={
+              data === "REAL" ? generateBarChartData(violations) : chartData
+            }
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"

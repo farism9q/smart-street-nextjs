@@ -10,17 +10,46 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { ViolationType } from "@/types/violation";
+import { useData } from "@/hooks/use-data";
+
+function generatePieChartData(violations: ViolationType[]) {
+  const vehicleCountsByType = {
+    car: 0,
+    truck: 0,
+    bus: 0,
+  };
+
+  violations.forEach(violation => {
+    vehicleCountsByType[
+      violation.vehicle_type as keyof typeof vehicleCountsByType
+    ]++;
+  });
+
+  return Object.entries(vehicleCountsByType).map(
+    ([vehicle, numberOfViolations]) => ({
+      vehicle,
+      numberOfViolations,
+      fill: `var(--color-${vehicle})`,
+    })
+  );
+}
 
 const chartData = [
   {
-    violationType: "overtaking from left",
+    vehicle: "Car",
     numberOfViolations: 275,
-    fill: "var(--color-overtakingFromLeft)",
+    fill: "var(--color-car)",
   },
   {
-    violationType: "overtaking from right",
-    numberOfViolations: 200,
-    fill: "var(--color-overtakingFromRight)",
+    vehicle: "Truck",
+    numberOfViolations: 150,
+    fill: "var(--color-truck)",
+  },
+  {
+    vehicle: "Bus",
+    numberOfViolations: 100,
+    fill: "var(--color-bus)",
   },
 ];
 
@@ -30,18 +59,30 @@ const chartConfig = {
   violationType: {
     label: "Violation Type",
   },
-  overtakingFromLeft: {
+  car: {
     color: "hsl(var(--chart-1))",
   },
-  overtakingFromRight: {
+  truck: {
     color: "hsl(var(--chart-3))",
+  },
+  bus: {
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export default function PieChartComponent() {
+export default function PieChartComponent({
+  violations,
+}: {
+  violations: ViolationType[];
+}) {
+  const { data: dataType } = useData();
+
+  const data =
+    dataType === "REAL" ? generatePieChartData(violations) : chartData;
+
   const totalViolations = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.numberOfViolations, 0);
-  }, []);
+    return data.reduce((acc, curr) => acc + curr.numberOfViolations, 0);
+  }, [data]);
 
   return (
     <Card className="flex flex-col justify-center h-full">
@@ -61,9 +102,9 @@ export default function PieChartComponent() {
               }
             />
             <Pie
-              data={chartData}
+              data={data}
               dataKey="numberOfViolations"
-              nameKey="violationType"
+              nameKey="vehicle"
               innerRadius={75}
               strokeWidth={5}
             >

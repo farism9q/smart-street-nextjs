@@ -14,8 +14,6 @@ const MiddleContent = ({ violations }: MiddleContentProps) => {
   const { middleContent } = useMiddleContent();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  console.log(violations);
-
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: false })

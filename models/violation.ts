@@ -13,6 +13,7 @@ const violationSchema = new mongoose.Schema(
     zip_code: { type: String, required: true },
   },
   { collection: "Violations_detected" }
+  // { collection: "violations" }
 );
 
 export default mongoose.models.Violations_detected ||

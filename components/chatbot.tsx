@@ -7,6 +7,7 @@ import { useChat } from "ai/react";
 
 import {
   ArrowLeft,
+  CircleStop,
   Maximize2Icon,
   SendIcon,
   Trash,
@@ -15,20 +16,21 @@ import {
 } from "lucide-react";
 
 import { useEffect, useRef } from "react";
-import { Skeleton } from "./ui/skeleton";
-import { MOBILE_WIDTH, cn } from "@/lib/utils";
 import { useChatbot } from "@/providers/chatbot-provider";
 import { useMedia } from "react-use";
+import { Skeleton } from "./ui/skeleton";
+import { MOBILE_WIDTH, cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 
 const QUICK_QUESTIONS = [
   "ما هي أنواع المركبات التي تسبب أكثر المخالفات؟",
   "ما هو نوع المخالفة الأكثر شيوعًا؟",
-  "ما هو الوقت الأكثر شيوعًا للمخالفات؟",
   "ما هو الشارع الأكثر شيوعًا للمخالفات؟",
+  "ما هي السنة الأكثر شيوعًا للمخالفات؟",
   "ما هو اليوم الأكثر شيوعًا للمخالفات؟",
   "ما هو الشهر الأكثر شيوعًا للمخالفات؟",
 ];
-
 
 export function Chatbot() {
   const {
@@ -38,6 +40,7 @@ export function Chatbot() {
     handleSubmit,
     setInput,
     setMessages,
+    stop,
   } = useChat();
 
   const { toggleActive, toggleFullScreen, fullScreen } = useChatbot();
@@ -56,7 +59,7 @@ export function Chatbot() {
   useEffect(() => {
     scrollToBottom();
   }, [lastMessage]);
-
+  console.log("messages", messages);
   const isLoading = messages[messages.length - 1]?.role === "user";
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
 
@@ -116,38 +119,44 @@ export function Chatbot() {
         <div />
       </div>
       <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
-        {messages?.map((message, index) => (
-          <div
-            ref={index === messages.length - 1 ? lastMessageRef : null}
-            key={message.id}
-            className={`flex ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            } mb-4`}
-          >
+        {messages
+          ?.filter(message => message.content !== "")
+          .map((message, index, messagesArr) => (
             <div
-              className={`max-w-[80%] p-3 rounded-lg ${
-                message.role === "user"
-                  ? "bg-primary/20 text-zinc-800 dark:text-white"
-                  : "bg-primary/50 text-white"
-              }`}
+              ref={index === messagesArr.length - 1 ? lastMessageRef : null}
+              key={message.id}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              } mb-4`}
             >
-              <div className="flex items-center mb-1">
-                {message.role === "assistant" ? (
-                  <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center mr-2">
-                    <span className="text-white text-xs font-bold">AI</span>
-                  </div>
-                ) : (
-                  <UserIcon className="w-5 h-5 mr-2" />
-                )}
-                <span className="font-semibold">
-                  {message.role === "user" ? "You" : "AI"}
-                </span>
-              </div>
+              <div
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  message.role === "user"
+                    ? "bg-primary/20 text-zinc-800 dark:text-white"
+                    : "bg-primary/50 text-white"
+                }`}
+              >
+                <div className="flex items-center mb-1">
+                  {message.role === "assistant" ? (
+                    <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center mr-2">
+                      <span className="text-white text-xs font-bold">AI</span>
+                    </div>
+                  ) : (
+                    <UserIcon className="w-5 h-5 mr-2" />
+                  )}
+                  <span className="font-semibold">
+                    {message.role === "user" ? "You" : "AI"}
+                  </span>
+                </div>
 
-              <p>{message.content}</p>
+                <p>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                    {message.content}
+                  </ReactMarkdown>
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         {isLoading && <SkeletonLoading />}
       </ScrollArea>
 
@@ -177,6 +186,7 @@ export function Chatbot() {
       )}
       <form
         onSubmit={e => {
+          e.preventDefault();
           handleSubmit(e);
         }}
         className="p-4 bg-white bg-opacity-10"
@@ -198,14 +208,20 @@ export function Chatbot() {
             placeholder="... أسال هنا"
             onChange={handleInputChange}
           />
-          <Button
-            type="submit"
-            size="icon"
-            className="bg-white bg-opacity-20 text-white"
-          >
-            <SendIcon className="h-4 w-4" />
-            <span className="sr-only">Send</span>
-          </Button>
+          {isLoading ? (
+            <Button size="icon" type="button" onClick={() => stop()}>
+              <CircleStop className="size-4" />
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              size="icon"
+              className="bg-white bg-opacity-20 text-white"
+            >
+              <SendIcon className="h-4 w-4" />
+              <span className="sr-only">Send</span>
+            </Button>
+          )}
         </div>
       </form>
     </div>

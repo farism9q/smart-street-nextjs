@@ -15,3 +15,7 @@ export function getMonth(date: Date) {
 export function getDay(date: Date) {
   return format(date, "EEEE"); // (e.g. Monday, Tuesday, etc.)
 }
+
+export function getDateString(date: Date) {
+  return format(date, "yyyy-MM-dd"); // (e.g. 2024-09-22)
+}

@@ -6,6 +6,110 @@ import "leaflet/dist/leaflet.css";
 
 import "@/app/styles/leaflet.css";
 import { ViolationType } from "@/types/violation";
+import violation from "@/models/violation";
+import { useData } from "@/hooks/use-data";
+
+const violationTest = [
+  {
+    latitude: 24.325,
+    longitude: 48.1234,
+    _id: "1",
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    _id: "2",
+    latitude: 24.1654,
+    longitude: 48.1264,
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    _id: "3",
+    latitude: 24.325,
+    longitude: 48.2364,
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.7532,
+    _id: "4",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.7952,
+    _id: "5",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.7895,
+    _id: "6",
+  },
+  {
+    overtake: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.3697,
+    _id: "7",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.7632,
+    _id: "8",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.0036,
+    _id: "9",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 48.1565,
+    _id: "10",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+
+    latitude: 24.325,
+    longitude: 54.123,
+    _id: "11",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 54.123,
+    _id: "12",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 54.123,
+    _id: "13",
+  },
+  {
+    violation_type: "Overtaking",
+    vehicle_type: "Car",
+    latitude: 24.325,
+    longitude: 54.123,
+    _id: "14",
+  },
+];
 
 type MapProps = {
   violation: ViolationType[];
@@ -16,6 +120,10 @@ export default function Map({ violation }: MapProps) {
     lat: number;
     lng: number;
   } | null>(null);
+
+  const { data } = useData();
+
+  const violationsData = data === "REAL" ? violation : violationTest;
 
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(position => {
@@ -41,13 +149,14 @@ export default function Map({ violation }: MapProps) {
           zoom={12}
           scrollWheelZoom={false}
         >
-          {violation?.map(violation => (
+          {violationsData?.map((violation, index) => (
             <CircleMarker
               key={violation._id}
               center={[violation.latitude, violation.longitude]}
               pathOptions={{ color: "red" }}
               radius={10}
             >
+            
               <Popup>
                 <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
                   <p className="text-lg font-semibold">

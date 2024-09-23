@@ -26,9 +26,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ViolationType } from "@/types/violation";
+import { useData } from "@/hooks/use-data";
+import { getDateString } from "@/lib/utils";
 
 // This function will be used to generate the data for the area chart
-function generateAreaChartDate(violations: ViolationType[]) {}
+function generateAreaChartDate(violations: ViolationType[]) {
+  const vehicleCountsByDate: Record<string, Record<string, number>> = {};
+
+  violations.forEach(violation => {
+    const date = getDateString(violation.date);
+
+    if (!vehicleCountsByDate[date]) {
+      vehicleCountsByDate[date] = { car: 0, truck: 0, bus: 0 };
+    }
+    vehicleCountsByDate[date][
+      violation.vehicle_type as "car" | "bus" | "truck"
+    ]++;
+  });
+
+  return Object.entries(vehicleCountsByDate).map(([date, counts]) => ({
+    date,
+    ...counts,
+  }));
+}
 
 // Since there is no data to be used for the area chart, we will use the below dummy data
 // Later, this data will be fetched from the database
@@ -71,21 +91,45 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function AreaChartComponent() {
+export default function AreaChartComponent({
+  violations,
+}: {
+  violations: ViolationType[];
+}) {
   const [timeRange, setTimeRange] = React.useState("90d");
+  const { data } = useData();
 
-  const filteredData = chartData.filter(item => {
-    const date = new Date(item.date);
-    const now = new Date();
-    let daysToSubtract = 90;
-    if (timeRange === "30d") {
-      daysToSubtract = 30;
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7;
-    }
-    now.setDate(now.getDate() - daysToSubtract);
-    return date >= now;
-  });
+  let filteredData = [];
+
+  if (data === "REAL") {
+    const data = generateAreaChartDate(violations);
+
+    filteredData = data.filter(item => {
+      const date = new Date(item.date);
+      const now = new Date();
+      let daysToSubtract = 90;
+      if (timeRange === "30d") {
+        daysToSubtract = 30;
+      } else if (timeRange === "7d") {
+        daysToSubtract = 7;
+      }
+      now.setDate(now.getDate() - daysToSubtract);
+      return date >= now;
+    });
+  } else {
+    filteredData = chartData.filter(item => {
+      const date = new Date(item.date);
+      const now = new Date();
+      let daysToSubtract = 90;
+      if (timeRange === "30d") {
+        daysToSubtract = 30;
+      } else if (timeRange === "7d") {
+        daysToSubtract = 7;
+      }
+      now.setDate(now.getDate() - daysToSubtract);
+      return date >= now;
+    });
+  }
 
   return (
     <Card>

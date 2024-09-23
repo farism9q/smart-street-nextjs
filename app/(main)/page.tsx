@@ -5,29 +5,50 @@ import AreaChartComponent from "../../components/area-chart";
 import BarChartComponent from "../../components/bar-chart";
 import LineChartComponent from "../../components/line-chart";
 import PieChartComponent from "../../components/pie-chart";
-import MiddleContent from "./middle-content";
 import { useEffect, useState } from "react";
-import { getAllViolation } from "@/actions/violation";
+import {
+  getAllViolation,
+  getViolationsStats,
+  getViolationByDate,
+  createViolation,
+} from "@/actions/violation";
 
 import { ViolationType } from "@/types/violation";
 import { Chatbot } from "@/components/chatbot";
 import { MOBILE_WIDTH, cn } from "@/lib/utils";
 import { useChatbot } from "@/providers/chatbot-provider";
 
+import dynamic from "next/dynamic";
+const Map = dynamic(() => import("@/components/map"), { ssr: false });
+
+import { Button } from "@/components/ui/button";
+
 export default function DashboardPage() {
   const [violations, setViolations] = useState<ViolationType[]>([]);
+  const [stats, setStats] = useState<any>({});
+
   const { active, toggleActive, fullScreen, toggleFullScreen } = useChatbot();
 
   useEffect(() => {
     async function fetchViolations() {
       const data = await getAllViolation();
+      const violationAndVehicleTypes = await getViolationsStats();
+      const violationsByDate = await getViolationByDate({
+        year: true,
+        month: true,
+        day: true,
+      });
 
       setViolations(data);
+      setStats([violationAndVehicleTypes, violationsByDate]);
     }
     fetchViolations();
   }, []);
 
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
+
+  console.log("violations", violations);
+  console.log("stats", stats);
 
   return (
     <div className="flex flex-col px-4">
@@ -53,6 +74,17 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* <div>
+          <Button
+            className="bg-primary"
+            onClick={() => {
+              createViolation();
+            }}
+          >
+            Add violations
+          </Button>
+        </div> */}
+
         {/* <div className="flex justify-end items-center">
         <p className="text-lg font-bold mr-2">{middleContent.toUpperCase()}</p> */}
 
@@ -68,15 +100,15 @@ export default function DashboardPage() {
         {!fullScreen && (
           <div className="flex flex-col gap-y-6">
             <div className="rounded-lg">
-              <MiddleContent violations={violations} />
+              <Map violation={violations} />
             </div>
 
-            <BarChartComponent />
+            <BarChartComponent violations={violations} />
 
-            <PieChartComponent />
+            <PieChartComponent violations={violations} />
 
-            <LineChartComponent />
-            <AreaChartComponent />
+            <LineChartComponent violations={violations} />
+            <AreaChartComponent violations={violations} />
           </div>
         )}
       </div>
