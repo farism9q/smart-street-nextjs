@@ -24,11 +24,10 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 
 const QUICK_QUESTIONS = [
-  "ما هي أنواع المركبات التي تسبب أكثر المخالفات؟",
-  "ما هو نوع المخالفة الأكثر شيوعًا؟",
-  "ما هو الشارع الأكثر شيوعًا للمخالفات؟",
+  "ما هي أنواع المركبات التي تسبب أكثر المخالفات  في الشهر الحالي؟",
+  "ما هو نوع المخالفة الأكثر شيوعًا في الشهر الحالي؟",
+  "ما هو الطريق الأكثر شيوعًا للمخالفات  في الشهر الحالي؟",
   "ما هي السنة الأكثر شيوعًا للمخالفات؟",
-  "ما هو اليوم الأكثر شيوعًا للمخالفات؟",
   "ما هو الشهر الأكثر شيوعًا للمخالفات؟",
 ];
 
@@ -59,7 +58,6 @@ export function Chatbot() {
   useEffect(() => {
     scrollToBottom();
   }, [lastMessage]);
-  console.log("messages", messages);
   const isLoading = messages[messages.length - 1]?.role === "user";
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
 

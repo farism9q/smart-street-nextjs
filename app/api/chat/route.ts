@@ -3,11 +3,13 @@ import { searchEmbedding } from "@/actions/pinecone";
 import {
   getAllViolation,
   getViolationsStats,
-  getViolationByDate,
+  getAllViolationsInRange,
 } from "@/actions/violation";
 import { Metadata } from "@/types/pinecone-record";
+import { CurrentDate } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
 import { streamText, convertToCoreMessages, CoreMessage, tool } from "ai";
+import { formatDate, parseISO } from "date-fns";
 import { z } from "zod";
 
 // Allow streaming responses up to 60 seconds
@@ -68,55 +70,50 @@ export async function POST(req: Request) {
       tools: {
         getViolationsStats: tool({
           description:
-            "Retrieve statistics about violations, including types of violations, associated vehicle types, and the streets where these violations occurred.",
-          parameters: z.object({}),
-          execute: () => getViolationsStats(),
-        }),
-        getStatistics: tool({
-          description:
-            "Get statisticts about the violations, including the number of violations recorded per day, month, and year.",
+            "Retrieve the statistics of the violations recorded based on the current date. If the current date is a year, it will return the total number of violations recorded in current year. The same applies to the month and day. Include all values if there more than one valeu",
           parameters: z.object({
-            year: z.boolean().optional(),
-            month: z.boolean().optional(),
-            day: z.boolean().optional(),
+            current: z.enum(["year", "month", "day"]),
           }),
-          execute: () =>
-            getViolationByDate({
-              year: true,
-              month: true,
-              day: true,
+          execute: ({ current }: { current: "year" | "month" | "day" }) =>
+            getViolationsStats({
+              current: current as CurrentDate,
             }),
         }),
-        // getEmbedding: tool({
-        //   description:
-        //     "Obtain the embeddings for the query to be used for searching relevant information.",
-        //   parameters: z.object({ query: z.string() }),
-        //   execute: ({ query }) => getEmbedding(query),
-        // }),
-        // findRelevantInformation: tool({
-        //   description:
-        //     "Identify and retrieve relevant information based on the provided query.",
-        //   parameters: z.object({ query: z.string() }),
-        //   execute: ({ query }) => getRelevantInformation(query),
-        // }),
+
+        getCurrentDate: tool({
+          description: "Use this tool to get the current date.",
+          parameters: z.object({}),
+          execute: async () =>
+            Promise.resolve(formatDate(new Date(), "yyyy-MM-dd")),
+        }),
+
+        getAllViolationsInRange: tool({
+          description:
+            "Retrieve all violations recorded in the specified range of dates. If no range is specified, act as you are in 2024.",
+          parameters: z.object({
+            from: z.string(),
+            to: z.string(),
+          }),
+          execute: ({ from, to }) => {
+            return getAllViolationsInRange({
+              from: parseISO(from),
+              to: parseISO(to),
+            });
+          },
+        }),
         getAllViolations: tool({
-          description: "Retrieve all violations recorded.",
+          description:
+            "Retrieve all violations recorded to answer the question.",
           parameters: z.object({}),
           execute: () => getAllViolation(),
         }),
       },
     });
 
-    console.log("RESPONSE STREAM", result);
-
     for await (const part of result.fullStream) {
-      console.log("PART", part);
-
       switch (part.type) {
         case "error": {
           const error = part.error;
-
-          console.log("ERROR", error);
 
           if (error instanceof Error) {
             return new Response(error.message, { status: 500 });
@@ -129,7 +126,6 @@ export async function POST(req: Request) {
 
     return result.toDataStreamResponse();
   } catch (error) {
-    console.log("RESPONSE STREAM ERROR", error);
     return new Response("Internal server error", { status: 500 });
   }
 }

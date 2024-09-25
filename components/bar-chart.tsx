@@ -10,49 +10,34 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ViolationType } from "@/types/violation";
-import { getMonth } from "@/lib/utils";
 import { useData } from "@/hooks/use-data";
 
 // This function will be used to generate the data for the bar chart
 function generateBarChartData(violations: ViolationType[]) {
-  const vehicleCountsByMonth = {
-    Jan: { car: 0, truck: 0, bus: 0 },
-    Feb: { car: 0, truck: 0, bus: 0 },
-    Mar: { car: 0, truck: 0, bus: 0 },
-    Apr: { car: 0, truck: 0, bus: 0 },
-    May: { car: 0, truck: 0, bus: 0 },
-    Jun: { car: 0, truck: 0, bus: 0 },
-    Jul: { car: 0, truck: 0, bus: 0 },
-    Aug: { car: 0, truck: 0, bus: 0 },
-    Sep: { car: 0, truck: 0, bus: 0 },
-    Oct: { car: 0, truck: 0, bus: 0 },
-    Nov: { car: 0, truck: 0, bus: 0 },
-    Dec: { car: 0, truck: 0, bus: 0 },
-  };
+  const groupedData: { [street: string]: { [vehicleType: string]: number } } =
+    {};
 
-  violations.forEach(violation => {
-    const month = getMonth(violation.date) as keyof typeof vehicleCountsByMonth;
-    vehicleCountsByMonth[month][
-      violation.vehicle_type as "car" | "bus" | "truck"
-    ]++;
+  violations.forEach(({ street_name, vehicle_type }) => {
+    if (!groupedData[street_name]) {
+      groupedData[street_name] = {};
+    }
+    if (!groupedData[street_name][vehicle_type]) {
+      groupedData[street_name][vehicle_type] = 0;
+    }
+    groupedData[street_name][vehicle_type]++;
   });
 
-  return Object.entries(vehicleCountsByMonth).map(([month, counts]) => ({
-    month,
-    ...counts,
-  }));
+  // Transform groupedData into chartData array format
+  const chartData = Object.keys(groupedData).map(street_name => {
+    return {
+      street_name,
+      ...groupedData[street_name], // Spread vehicle types as individual properties
+    };
+  });
+
+  return chartData;
 }
 
-// Since there is no data to be used for the bar chart, we will use the below dummy data
-// Later, this data will be fetched from the database
-const chartData = [
-  { month: "January", car: 186, truck: 80, bus: 40 },
-  { month: "February", car: 120, truck: 100, bus: 50 },
-  { month: "March", car: 160, truck: 90, bus: 60 },
-  { month: "April", car: 140, truck: 110, bus: 70 },
-  { month: "May", car: 180, truck: 120, bus: 80 },
-  { month: "June", car: 200, truck: 130, bus: 90 },
-];
 const chartConfig = {
   car: {
     label: "Car",
@@ -60,11 +45,11 @@ const chartConfig = {
   },
   truck: {
     label: "Truck",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(var(--chart-5))",
   },
   bus: {
     label: "Bus",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-4))",
   },
 } satisfies ChartConfig;
 
@@ -73,10 +58,8 @@ export default function BarChartComponent({
 }: {
   violations: ViolationType[];
 }) {
-  const { data } = useData();
-
   return (
-    <Card className="flex flex-col justify-center h-full">
+    <Card>
       <CardHeader className="items-center pb-0 pt-8">
         <CardTitle>Bar Chart</CardTitle>
       </CardHeader>
@@ -85,19 +68,14 @@ export default function BarChartComponent({
           config={chartConfig}
           className="mx-auto aspect-square w-full max-h-[250px]"
         >
-          <BarChart
-            accessibilityLayer
-            data={
-              data === "REAL" ? generateBarChartData(violations) : chartData
-            }
-          >
+          <BarChart accessibilityLayer data={generateBarChartData(violations)}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="street_name"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={value => value.slice(0, 3)}
+              tickFormatter={value => value}
             />
             <ChartTooltip
               cursor={false}

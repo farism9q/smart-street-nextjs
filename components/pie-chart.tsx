@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useMemo } from "react";
 import { Label, Pie, PieChart } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,50 +10,45 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ViolationType } from "@/types/violation";
-import { useData } from "@/hooks/use-data";
+import { CurrentDate, ViolationType } from "@/types/violation";
+import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
+import {
+  endOfDay,
+  endOfMonth,
+  endOfYear,
+  startOfDay,
+  startOfMonth,
+  startOfYear,
+} from "date-fns";
+import { Skeleton } from "./ui/skeleton";
 
 function generatePieChartData(violations: ViolationType[]) {
-  const vehicleCountsByType = {
-    car: 0,
-    truck: 0,
-    bus: 0,
-  };
+  const vehicleCountsByType: any = {};
 
   violations.forEach(violation => {
-    vehicleCountsByType[
-      violation.vehicle_type as keyof typeof vehicleCountsByType
-    ]++;
+    const vehicleType = violation.vehicle_type;
+
+    if (vehicleCountsByType[vehicleType]) {
+      vehicleCountsByType[vehicleType] += 1;
+    } else {
+      vehicleCountsByType[vehicleType] = 1;
+    }
   });
 
   return Object.entries(vehicleCountsByType).map(
-    ([vehicle, numberOfViolations]) => ({
-      vehicle,
-      numberOfViolations,
-      fill: `var(--color-${vehicle})`,
-    })
+    ([vehicle, numberOfViolations]) => {
+      return {
+        vehicle,
+        numberOfViolations,
+        fill: `var(--color-${vehicle})`,
+      } as {
+        vehicle: string;
+        numberOfViolations: number;
+        fill: string;
+      };
+    }
   );
 }
-
-const chartData = [
-  {
-    vehicle: "Car",
-    numberOfViolations: 275,
-    fill: "var(--color-car)",
-  },
-  {
-    vehicle: "Truck",
-    numberOfViolations: 150,
-    fill: "var(--color-truck)",
-  },
-  {
-    vehicle: "Bus",
-    numberOfViolations: 100,
-    fill: "var(--color-bus)",
-  },
-];
-
-// TODO: Use select option to select either violation_type or vehicle_type
 
 const chartConfig = {
   violationType: {
@@ -71,18 +66,77 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function PieChartComponent({
-  violations,
+  current,
 }: {
-  violations: ViolationType[];
+  current: CurrentDate;
 }) {
-  const { data: dataType } = useData();
+  const { from, to } = useMemo(() => {
+    let from: Date;
+    let to: Date;
 
-  const data =
-    dataType === "REAL" ? generatePieChartData(violations) : chartData;
+    if (current === CurrentDate.year) {
+      from = startOfYear(new Date());
+      to = endOfYear(new Date());
+    } else if (current === CurrentDate.month) {
+      from = startOfMonth(new Date());
+      to = endOfMonth(new Date());
+    }
+    // Might be implemented later
+    // else if (current === CurrentDate.week) {
+    //   from = startOfWeek(new Date());
+    //   to = endOfWeek(new Date());
+    // }
+    else {
+      from = startOfDay(new Date());
+      to = endOfDay(new Date());
+    }
 
-  const totalViolations = React.useMemo(() => {
-    return data.reduce((acc, curr) => acc + curr.numberOfViolations, 0);
-  }, [data]);
+    return { from, to };
+  }, [current]);
+
+  const {
+    data: violations,
+    isLoading,
+    error,
+  } = useGetAllViolationsInRange({
+    from,
+    to,
+  });
+
+  if (isLoading) {
+    return <SkeletonLoading />;
+  }
+
+  if (!violations || error) {
+    return <p>Something went wrong</p>;
+  }
+
+  const data = generatePieChartData(violations);
+
+  const totalViolations = data.reduce(
+    (acc, { numberOfViolations }) => acc + numberOfViolations || 0,
+    0
+  );
+
+  if (data.length === 0) {
+    return (
+      <Card className="flex flex-col justify-center h-full">
+        <CardHeader className="items-center pt-8">
+          <CardTitle>No data found</CardTitle>
+        </CardHeader>
+        <CardContent className="pb-0 flex justify-center items-center">
+          <p>
+            No data found for{" "}
+            {current === CurrentDate.year
+              ? "year"
+              : current === CurrentDate.month
+              ? "month"
+              : "today"}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex flex-col justify-center h-full">
@@ -142,5 +196,13 @@ export default function PieChartComponent({
         </ChartContainer>
       </CardContent>
     </Card>
+  );
+}
+
+function SkeletonLoading() {
+  return (
+    <div className="flex justify-center items-center h-full w-full">
+      <Skeleton className="size-64 rounded-full" />
+    </div>
   );
 }

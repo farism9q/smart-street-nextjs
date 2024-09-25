@@ -44,6 +44,7 @@ export async function searchEmbedding(embeddings: RecordValues) {
   return results;
 }
 
-export async function deleteAllEmbeddings() {
-  await index.deleteAll();
-}
+// Only for testing purposes
+// export async function deleteAllEmbeddings() {
+//   await index.deleteAll();
+// }

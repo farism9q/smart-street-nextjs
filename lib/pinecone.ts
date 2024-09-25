@@ -6,6 +6,7 @@ const pc = new Pinecone({
   apiKey: api_key,
 });
 // const index = pc.index("smart-street");
-const index = pc.index("violation-data2");
+// const index = pc.index("violation-data4");
+const index = pc.index("violation-data5");
 
 export { index };

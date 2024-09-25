@@ -1,129 +1,24 @@
 "use client";
 
 import { MapContainer, Popup, TileLayer, CircleMarker } from "react-leaflet";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
 import "@/app/styles/leaflet.css";
 import { ViolationType } from "@/types/violation";
-import violation from "@/models/violation";
-import { useData } from "@/hooks/use-data";
-
-const violationTest = [
-  {
-    latitude: 24.325,
-    longitude: 48.1234,
-    _id: "1",
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    _id: "2",
-    latitude: 24.1654,
-    longitude: 48.1264,
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    _id: "3",
-    latitude: 24.325,
-    longitude: 48.2364,
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.7532,
-    _id: "4",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.7952,
-    _id: "5",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.7895,
-    _id: "6",
-  },
-  {
-    overtake: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.3697,
-    _id: "7",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.7632,
-    _id: "8",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.0036,
-    _id: "9",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 48.1565,
-    _id: "10",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-
-    latitude: 24.325,
-    longitude: 54.123,
-    _id: "11",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 54.123,
-    _id: "12",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 54.123,
-    _id: "13",
-  },
-  {
-    violation_type: "Overtaking",
-    vehicle_type: "Car",
-    latitude: 24.325,
-    longitude: 54.123,
-    _id: "14",
-  },
-];
 
 type MapProps = {
-  violation: ViolationType[];
+  violations: ViolationType[] | undefined;
 };
 
-export default function Map({ violation }: MapProps) {
+export default function Map({ violations }: MapProps) {
   const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
-  } | null>(null);
-
-  const { data } = useData();
-
-  const violationsData = data === "REAL" ? violation : violationTest;
+  }>({
+    lat: 24.8607,
+    lng: 46.6176,
+  });
 
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(position => {
@@ -138,23 +33,41 @@ export default function Map({ violation }: MapProps) {
 
   useEffect(() => {
     getCurrentLocation();
-  }, []);
+  }, [violations]);
+
+  const meanCoords = useMemo(() => {
+    const lat =
+      violations?.reduce((acc, curr) => acc + curr.latitude, 0) ||
+      coordinates.lat;
+    const lng =
+      violations?.reduce((acc, curr) => acc + curr.longitude, 0) ||
+      coordinates.lng;
+
+    return {
+      lat: lat / (violations?.length || 1),
+      lng: lng / (violations?.length || 1),
+    };
+  }, [violations]);
 
   return (
     <div className="flex flex-col">
       {coordinates ? (
         <MapContainer
           className="min-h-[500px] min-w-[500px] w-full h-full"
-          center={[coordinates.lat, coordinates.lng]}
+          center={
+            meanCoords
+              ? [meanCoords.lat, meanCoords.lng]
+              : [coordinates.lat, coordinates.lng]
+          }
           zoom={12}
           scrollWheelZoom={false}
         >
-          {violationsData?.map((violation, index) => (
+          {violations?.map((violation, index) => (
             <CircleMarker
               key={violation._id}
               center={[violation.latitude, violation.longitude]}
               pathOptions={{ color: "red" }}
-              radius={10}
+              radius={5}
             >
               <Popup>
                 <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">

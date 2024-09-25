@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useMemo } from "react";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 
 import {
@@ -18,10 +18,9 @@ import {
 } from "@/components/ui/chart";
 import { ViolationType } from "@/types/violation";
 import { getDateString } from "@/lib/utils";
-import { useData } from "@/hooks/use-data";
 
 // This function will be used to generate the data for the line chart
-function generateLineChartData(violations: ViolationType[]): typeof chartData {
+function generateLineChartData(violations: ViolationType[]) {
   const vehicleCountsByDate: Record<string, Record<string, number>> = {};
 
   violations.forEach(violation => {
@@ -44,25 +43,6 @@ function generateLineChartData(violations: ViolationType[]): typeof chartData {
     date,
   }));
 }
-
-// Since there is no data to be used for the line chart, we will use the below dummy data
-const chartData = [
-  { date: "2024-04-01", car: 222, bus: 150, truck: 100, violations: 472 },
-  { date: "2024-04-02", car: 200, bus: 130, truck: 90, violations: 420 },
-  { date: "2024-04-03", car: 180, bus: 120, truck: 80, violations: 380 },
-  { date: "2024-04-04", car: 160, bus: 110, truck: 70, violations: 340 },
-  { date: "2024-04-05", car: 140, bus: 100, truck: 60, violations: 300 },
-  { date: "2024-04-06", car: 120, bus: 90, truck: 50, violations: 260 },
-  { date: "2024-04-07", car: 100, bus: 80, truck: 40, violations: 220 },
-  { date: "2024-04-08", car: 80, bus: 70, truck: 30, violations: 180 },
-  { date: "2024-04-09", car: 60, bus: 60, truck: 20, violations: 140 },
-  { date: "2024-04-10", car: 40, bus: 50, truck: 10, violations: 100 },
-  { date: "2024-04-11", car: 20, bus: 40, truck: 0, violations: 60 },
-  { date: "2024-04-12", car: 0, bus: 30, truck: 0, violations: 30 },
-  { date: "2024-04-13", car: 0, bus: 20, truck: 0, violations: 20 },
-  { date: "2024-04-14", car: 0, bus: 10, truck: 0, violations: 10 },
-  { date: "2024-04-15", car: 0, bus: 0, truck: 0, violations: 0 },
-];
 
 const chartConfig = {
   violations: {
@@ -89,13 +69,13 @@ export default function LineChartComponent({
   violations: ViolationType[];
 }) {
   const [activeChart, setActiveChart] =
-    React.useState<keyof typeof chartConfig>("car");
-  const { data: dataType } = useData();
+    useState<keyof typeof chartConfig>("car");
 
-  const data: typeof chartData =
-    dataType === "REAL" ? generateLineChartData(violations) : chartData;
+  // const [year, setYear] = useState<number>(2024);
 
-  const total = React.useMemo(
+  const data = generateLineChartData(violations);
+
+  const total = useMemo(
     () => ({
       car: data.reduce((acc, curr) => acc + curr.car, 0),
       bus: data.reduce((acc, curr) => acc + curr.bus, 0),
@@ -109,7 +89,10 @@ export default function LineChartComponent({
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>Line Chart</CardTitle>
+          <div className="flex justify-between items-center pb-4">
+            <CardTitle>Line Chart</CardTitle>
+          </div>
+
           <CardDescription>
             Showing the total number of violations for{" "}
             {activeChart === "violations" ? "all vehicle" : activeChart} over

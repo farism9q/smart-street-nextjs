@@ -1,235 +1,269 @@
 "use server";
 
 import Violation from "@/models/violation";
-import { ViolationType } from "@/types/violation";
-import { deleteAllEmbeddings, insertEmbedding } from "./pinecone";
+import { CurrentDate, ViolationStats, ViolationType } from "@/types/violation";
 import { getMonth } from "@/lib/utils";
-
-// FAKE DATA
-const violations = [
-  {
-    time: "08:45",
-    date: new Date("2023-09-12T08:45:00"),
-    license_plate_number: "12345",
-    violation_type: "overtaking",
-    vehicle_type: "car",
-    latitude: 24.7136,
-    longitude: 46.6753,
-    street_name: "King Fahd Road",
-    zip_code: "11564",
-  },
-  {
-    time: "13:20",
-    date: new Date("2023-08-25T13:20:00"),
-    license_plate_number: "67890",
-    violation_type: "overtaking",
-    vehicle_type: "truck",
-    latitude: 24.7254,
-    longitude: 46.6561,
-    street_name: "Olaya Street",
-    zip_code: "12211",
-  },
-  {
-    time: "09:50",
-    date: new Date("2023-07-10T09:50:00"),
-    license_plate_number: "11223",
-    violation_type: "overtaking",
-    vehicle_type: "bus",
-    latitude: 24.7743,
-    longitude: 46.7386,
-    street_name: "Takhassusi Street",
-    zip_code: "12345",
-  },
-  {
-    time: "17:10",
-    date: new Date("2023-09-03T17:10:00"),
-    license_plate_number: "33445",
-    violation_type: "overtaking",
-    vehicle_type: "car",
-    latitude: 24.7073,
-    longitude: 46.6737,
-    street_name: "Prince Sultan Road",
-    zip_code: "12562",
-  },
-  {
-    time: "22:05",
-    date: new Date("2023-07-19T22:05:00"),
-    license_plate_number: "55678",
-    violation_type: "overtaking",
-    vehicle_type: "bus",
-    latitude: 24.6877,
-    longitude: 46.7219,
-    street_name: "Al Urubah Road",
-    zip_code: "12343",
-  },
-  {
-    time: "11:30",
-    date: new Date("2023-08-30T11:30:00"),
-    license_plate_number: "77899",
-    violation_type: "overtaking",
-    vehicle_type: "truck",
-    latitude: 24.7136,
-    longitude: 46.6753,
-    street_name: "King Fahd Road",
-    zip_code: "11564",
-  },
-  {
-    time: "07:15",
-    date: new Date("2023-09-01T07:15:00"),
-    license_plate_number: "11223",
-    violation_type: "overtaking",
-    vehicle_type: "car",
-    latitude: 24.7254,
-    longitude: 46.6561,
-    street_name: "Olaya Street",
-    zip_code: "12211",
-  },
-  {
-    time: "14:00",
-    date: new Date("2023-07-27T14:00:00"),
-    license_plate_number: "33445",
-    violation_type: "overtaking",
-    vehicle_type: "bus",
-    latitude: 24.7743,
-    longitude: 46.7386,
-    street_name: "Takhassusi Street",
-    zip_code: "12345",
-  },
-  {
-    time: "19:30",
-    date: new Date("2023-09-09T19:30:00"),
-    license_plate_number: "55678",
-    violation_type: "overtaking",
-    vehicle_type: "truck",
-    latitude: 24.7073,
-    longitude: 46.6737,
-    street_name: "Prince Sultan Road",
-    zip_code: "12562",
-  },
-  {
-    time: "10:00",
-    date: new Date("2023-08-15T10:00:00"),
-    license_plate_number: "77899",
-    violation_type: "overtaking",
-    vehicle_type: "car",
-    latitude: 24.6877,
-    longitude: 46.7219,
-    street_name: "Al Urubah Road",
-    zip_code: "12343",
-  },
-  // Create more fake data by with same values as above with same date and time
-  {
-    time: "08:45",
-    date: new Date("2023-09-12T08:45:00"),
-    license_plate_number: "12345",
-    violation_type: "overtaking",
-    vehicle_type: "car",
-    latitude: 24.7136,
-    longitude: 46.6753,
-    street_name: "King Fahd Road",
-    zip_code: "11564",
-  },
-  {
-    time: "13:20",
-    date: new Date("2023-08-25T13:20:00"),
-    license_plate_number: "67890",
-    violation_type: "overtaking",
-    vehicle_type: "truck",
-    latitude: 24.7254,
-    longitude: 46.6561,
-    street_name: "Olaya Street",
-    zip_code: "12211",
-  },
-  {
-    time: "09:50",
-    date: new Date("2023-07-10T09:50:00"),
-    license_plate_number: "11223",
-    violation_type: "overtaking",
-    vehicle_type: "bus",
-    latitude: 24.7743,
-    longitude: 46.7386,
-    street_name: "Takhassusi Street",
-    zip_code: "12345",
-  },
-  {
-    time: "17:10",
-    date: new Date("2023-09-03T17:10:00"),
-    license_plate_number: "33445",
-    violation_type: "overtaking",
-    vehicle_type: "car",
-    latitude: 24.7073,
-    longitude: 46.6737,
-    street_name: "Prince Sultan Road",
-    zip_code: "12562",
-  },
-  {
-    time: "22:05",
-    date: new Date("2023-07-19T22:05:00"),
-    license_plate_number: "55678",
-    violation_type: "overtaking",
-    vehicle_type: "bus",
-    latitude: 24.6877,
-    longitude: 46.7219,
-    street_name: "Al Urubah Road",
-    zip_code: "12343",
-  },
-  {
-    time: "11:30",
-    date: new Date("2023-08-30T11:30:00"),
-    license_plate_number: "77899",
-    violation_type: "overtaking",
-    vehicle_type: "truck",
-    latitude: 24.7136,
-    longitude: 46.6753,
-    street_name: "King Fahd Road",
-    zip_code: "11564",
-  },
-];
+import { startOfDay, startOfMonth, startOfYear } from "date-fns";
 
 export async function getAllViolation() {
-  const data = await Violation.find().select("-__v");
+  try {
+    const data = await Violation.find().select("-__v");
 
-  const formattedData = data.map(violation => {
-    return {
-      _id: violation._id.toString(),
-      date: violation.date,
-      time: violation.time,
-      license_plate_number: violation.license_plate_number,
-      violation_type: violation.violation_type,
-      vehicle_type: violation.vehicle_type,
-      longitude: violation.longitude,
-      latitude: violation.latitude,
-      street_name: violation.street_name,
-      month: getMonth(new Date(violation.date)),
-    } as ViolationType;
-  });
+    const formattedData = data.map(violation => {
+      return {
+        _id: violation._id.toString(),
+        date: violation.date,
+        time: violation.time,
+        license_plate_number: violation.license_plate_number,
+        violation_type: violation.violation_type,
+        vehicle_type: violation.vehicle_type,
+        longitude: violation.longitude,
+        latitude: violation.latitude,
+        street_name: violation.street_name,
+        month: getMonth(new Date(violation.date)),
+      } as ViolationType;
+    });
 
-  return formattedData;
+    return formattedData;
+  } catch (error: any) {
+    throw new Error("Error fetching violations");
+  }
 }
 
-export async function getViolationsStats() {
-  const vehicleViolationTypes = await Violation.aggregate([
+export async function getAllViolationsInRange({
+  from,
+  to,
+}: {
+  from: Date;
+  to: Date;
+}) {
+  try {
+    const data = await Violation.aggregate([
+      {
+        $addFields: {
+          dateConverted: { $toDate: "$date" }, // Convert the stored date to Date type
+        },
+      },
+      {
+        $match: {
+          dateConverted: {
+            $gte: from,
+            $lte: to,
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          date: "$dateConverted",
+          time: 1,
+          license_plate_number: 1,
+          violation_type: 1,
+          vehicle_type: 1,
+          longitude: 1,
+          latitude: 1,
+          street_name: 1,
+        },
+      },
+    ]).exec();
+
+    const formattedData = data.map(violation => {
+      return {
+        _id: violation._id.toString(),
+        date: violation.date,
+        time: violation.time,
+        license_plate_number: violation.license_plate_number,
+        violation_type: violation.violation_type,
+        vehicle_type: violation.vehicle_type,
+        longitude: violation.longitude,
+        latitude: violation.latitude,
+        street_name: violation.street_name,
+        month: getMonth(new Date(violation.date)),
+      } as ViolationType;
+    });
+
+    return formattedData;
+  } catch (error: any) {
+    throw new Error("Error fetching violations");
+  }
+}
+
+// This function will return the maximum number of steets, vehicles and violations that have the highest number of violations
+// This function will be used to display the statistics in the dashboard (As cards)
+export async function getViolationsStats({
+  current,
+}: {
+  current: CurrentDate;
+}) {
+  const to = new Date();
+  let from = startOfDay(to);
+
+  if (current === CurrentDate.year) {
+    from = startOfYear(to);
+  }
+
+  if (current === CurrentDate.month) {
+    from = startOfMonth(to);
+  }
+
+  // Might be implemented later
+  // if (current === CurrentDate.week) {
+  //   from = startOfWeek(to);
+  // }
+
+  if (current === CurrentDate.day) {
+    from = startOfDay(to);
+  }
+
+  const violationsStats = await Violation.aggregate([
     {
-      $group: {
-        _id: ["$violation_type", "$vehicle_type", "$street_name"],
-        total: { $sum: 1 },
-        vehicle_type: { $first: "$vehicle_type" },
-        violation_type: { $first: "$violation_type" },
-        street_name: { $first: "$street_name" },
+      $addFields: {
+        dateConverted: { $toDate: "$date" },
+      },
+    },
+    {
+      $match: {
+        dateConverted: {
+          $gte: from,
+          $lte: to,
+        },
+      },
+    },
+    {
+      $facet: {
+        streetNameGroup: [
+          {
+            $group: {
+              _id: "$street_name",
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { count: -1 },
+          },
+          {
+            $group: {
+              _id: null,
+              maxCount: { $first: "$count" },
+              streets: {
+                $push: {
+                  name: "$_id",
+                  count: "$count",
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              maxCount: 1,
+              streets: {
+                $filter: {
+                  input: "$streets",
+                  as: "street",
+                  cond: { $eq: ["$$street.count", "$maxCount"] },
+                },
+              },
+            },
+          },
+        ],
+        vehicleTypeGroup: [
+          {
+            $group: {
+              _id: "$vehicle_type",
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { count: -1 },
+          },
+          {
+            $group: {
+              _id: null,
+              maxCount: { $first: "$count" },
+              vehicles: {
+                $push: {
+                  name: "$_id",
+                  count: "$count",
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              maxCount: 1,
+              vehicles: {
+                $filter: {
+                  input: "$vehicles",
+                  as: "vehicle",
+                  cond: { $eq: ["$$vehicle.count", "$maxCount"] },
+                },
+              },
+            },
+          },
+        ],
+        violationTypeGroup: [
+          {
+            $group: {
+              _id: "$violation_type",
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { count: -1 },
+          },
+          {
+            $group: {
+              _id: null,
+              maxCount: { $first: "$count" },
+              violations: {
+                $push: {
+                  name: "$_id",
+                  count: "$count",
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              maxCount: 1,
+              violations: {
+                $filter: {
+                  input: "$violations",
+                  as: "violation",
+                  cond: { $eq: ["$$violation.count", "$maxCount"] },
+                },
+              },
+            },
+          },
+        ],
       },
     },
     {
       $project: {
-        _id: 0, // To exclude the _id field
-        vehicle_type: 1,
-        violation_type: 1,
-        street_name: 1,
-        total: 1,
+        streetName: {
+          maxCount: { $arrayElemAt: ["$streetNameGroup.maxCount", 0] },
+          maxStreets: { $arrayElemAt: ["$streetNameGroup.streets.name", 0] },
+        },
+        vehicleType: {
+          maxCount: { $arrayElemAt: ["$vehicleTypeGroup.maxCount", 0] },
+          maxVehicles: { $arrayElemAt: ["$vehicleTypeGroup.vehicles.name", 0] },
+        },
+        violationType: {
+          maxCount: { $arrayElemAt: ["$violationTypeGroup.maxCount", 0] },
+          maxViolations: {
+            $arrayElemAt: ["$violationTypeGroup.violations.name", 0],
+          },
+        },
       },
     },
   ]);
 
-  return vehicleViolationTypes;
+  if (!violationsStats) {
+    return [];
+  }
+
+  return violationsStats[0] as ViolationStats;
 }
 
 export async function getViolationByDate({
@@ -285,28 +319,161 @@ export async function getViolationByDate({
   return violationsDate;
 }
 
+// This function is used to compare the total number of violations based on the year, month and day
+// If nothing is passed or the year only passed, it will compare the current year and previous year
+// If month is passed, it will compare the current month and previous month
+// If day is passed, it will compare the current day and previous day
+export async function getComparionOfTotalNbViolations({
+  current,
+}: {
+  current: CurrentDate;
+}) {
+  let objProject: any;
+
+  if (current === CurrentDate.year) {
+    objProject = {
+      year: { $year: { $toDate: "$date" } },
+    };
+  }
+
+  if (current === CurrentDate.month) {
+    objProject = {
+      month: { $month: { $toDate: "$date" } },
+    };
+  }
+
+  // Might be implemented later
+  // if (current === CurrentDate.week) {
+  //   objProject = {
+  //     week: { $week: { $toDate: "$date" } },
+  //   };
+  // }
+
+  if (current === CurrentDate.day) {
+    objProject = {
+      day: { $dayOfMonth: { $toDate: "$date" } },
+    };
+  }
+
+  let objMatch: any = {};
+  const objGroup: any = {};
+  // Case1: Compare the current year and previous year
+  if (current === CurrentDate.year) {
+    objMatch.year = {
+      $gte: new Date().getFullYear() - 1,
+      $lte: new Date().getFullYear(),
+    };
+    objGroup.year = { $first: "$year" };
+  }
+
+  // Case2: Compare the current month and previous month
+  if (current === CurrentDate.month) {
+    objMatch.month = {
+      $gte: new Date().getMonth(),
+      $lte: new Date().getMonth() + 1,
+    };
+    objMatch.year = new Date().getFullYear();
+    objGroup.month = { $first: "$month" };
+  }
+
+  // Might be implemented later
+  // if (current === CurrentDate.week) {
+  //   objMatch.week = {
+  //     $gte: startOfDay(new Date()).getDate() - 7,
+  //     $lte: startOfDay(new Date()).getDate(),
+  //   };
+  //   objMatch.year = new Date().getFullYear();
+  //   objMatch.month = new Date().getMonth() + 1;
+  //   objGroup.week = { $first: "$week" };
+  // }
+
+  // Case3: Compare the current day and previous day
+  if (current === CurrentDate.day) {
+    objMatch.day = {
+      $gte: new Date().getDate(),
+      $lte: new Date().getDate() + 1,
+    };
+    objMatch.year = new Date().getFullYear();
+    objMatch.month = new Date().getMonth() + 1;
+    objGroup.day = { $first: "$day" };
+  }
+
+  const result = await Violation.aggregate([
+    {
+      $project: {
+        ...objProject,
+      },
+    },
+    {
+      $match: {
+        ...objMatch,
+      },
+    },
+    {
+      $group: {
+        _id: { year: "$year", month: "$month", week: "$week", day: "$day" },
+        total: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        year: 1,
+        month: 1,
+        day: 1,
+        total: 1,
+      },
+    },
+  ]);
+
+  // If there is only one result, it means there is no comparison between current and previous: year, month or day
+  if (result.length < 2) {
+    return [];
+  }
+
+  // Not sure if it is (always) the first element is the current and the second is the previous
+  const resultToBeReturned: any = {
+    compare: current,
+  };
+
+  resultToBeReturned.current =
+    result[0]._id[resultToBeReturned.compare] >
+    result[1]._id[resultToBeReturned.compare]
+      ? result[0]
+      : result[1];
+
+  resultToBeReturned.previous =
+    result[0]._id[resultToBeReturned.compare] <
+    result[1]._id[resultToBeReturned.compare]
+      ? result[0]
+      : result[1];
+
+  return resultToBeReturned;
+}
+
+// *** This function is used to insert the data only for testing purposes ***
 // The acutal insertion will be handled in other place (in python),
 // and this function will be used to insert the data only for testing purposes
-export async function createViolation() {
-  await Violation.deleteMany();
-  await deleteAllEmbeddings();
+// export async function createViolation() {
+//   // await Violation.deleteMany();
+//   // await deleteAllEmbeddings();
 
-  Violation.insertMany(violations)
-    .then(docs => {
-      docs.map(async doc => {
-        await insertEmbedding(doc);
-      });
-    })
-    .catch(err => {
-      console.error("Error inserting documents:", err);
-    });
-}
+//   // Violation.insertMany(violations)
+//   //   .then(docs => {
+//   //     docs.map(async doc => {
+//   //       await insertEmbedding(doc);
+//   //     });
+//   //   })
+//   //   .catch(err => {
+//   //     console.error("Error inserting documents:", err);
+//   //   });
+// }
 
 // This is same as createviolation, it is used to delete all the data only for testing purposes
-export async function deleteAllViolation() {
-  const data = await Violation.deleteMany();
+// export async function deleteAllViolation() {
+//   const data = await Violation.deleteMany();
 
-  console.log(data);
+//   console.log(data);
 
-  return data;
-}
+//   return data;
+// }
