@@ -1,31 +1,24 @@
 "use client";
 import { useMedia } from "react-use";
+import dynamic from "next/dynamic";
 
-import AreaChartComponent from "../../components/area-chart";
-import BarChartComponent from "../../components/bar-chart";
-import LineChartComponent from "../../components/line-chart";
-import PieChartComponent from "../../components/pie-chart";
-import MiddleContent from "./middle-content";
-import { useEffect, useState } from "react";
-import { getAllViolation } from "@/actions/violation";
-
-import { ViolationType } from "@/types/violation";
-import { Chatbot } from "@/components/chatbot";
-import { MOBILE_WIDTH, cn } from "@/lib/utils";
 import { useChatbot } from "@/providers/chatbot-provider";
+import { useGetViolations } from "@/hooks/use-get-violations";
+import { MOBILE_WIDTH, cn } from "@/lib/utils";
+
+import { Chatbot } from "@/components/chatbot";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Charts } from "./charts";
+import { StatsCards } from "./violations-stats";
+
+const Map = dynamic(() => import("@/components/map"), {
+  ssr: false,
+  loading: () => <Skeleton className="w-full h-[500px] rounded-lg" />,
+});
 
 export default function DashboardPage() {
-  const [violations, setViolations] = useState<ViolationType[]>([]);
   const { active, toggleActive, fullScreen, toggleFullScreen } = useChatbot();
-
-  useEffect(() => {
-    async function fetchViolations() {
-      const data = await getAllViolation();
-
-      setViolations(data);
-    }
-    fetchViolations();
-  }, []);
+  const { data: violations, isLoading } = useGetViolations();
 
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
 
@@ -37,7 +30,8 @@ export default function DashboardPage() {
             <Chatbot />
           ) : (
             <div
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 toggleActive();
                 if (isMobile) {
                   toggleFullScreen(true);
@@ -53,32 +47,50 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* <div className="flex justify-end items-center">
-        <p className="text-lg font-bold mr-2">{middleContent.toUpperCase()}</p> */}
-
-        {/* This might not be needed */}
-        {/* <Switch
-          className="data-[state=unchecked]:bg-primary"
-          onCheckedChange={() => {
-            setMiddleContent(middleContent === "map" ? "live" : "map");
-          }}
-        />
-      </div> */}
-
         {!fullScreen && (
           <div className="flex flex-col gap-y-6">
-            <div className="rounded-lg">
-              <MiddleContent violations={violations} />
+            <div className="min-h-[500px] max-h-[500px] overflow-hidden rounded-lg">
+              <Map violations={violations} />
             </div>
 
-            <BarChartComponent />
-
-            <PieChartComponent />
-
-            <LineChartComponent />
-            <AreaChartComponent />
+            {!isLoading && violations !== undefined ? (
+              <>
+                <StatsCards />
+                <Charts />
+              </>
+            ) : (
+              <SkeletonLoading />
+            )}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function SkeletonLoading() {
+  return (
+    <div className="flex flex-col px-4">
+      <div className="space-y-6 relative w-full">
+        <div className="flex flex-col gap-y-6">
+          <Skeleton className="w-full h-[500px] rounded-lg" />
+
+          <Skeleton className="w-full h-[300px] rounded-lg" />
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid gap-6 grid-cols-2">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex flex-col space-y-3">
+                  <Skeleton className="h-[125px] w-full rounded-xl" />
+                </div>
+              ))}
+            </div>
+            <Skeleton className="h-[300px] rounded-lg" />
+          </div>
+
+          <Skeleton className="w-full h-[300px] rounded-lg" />
+          <Skeleton className="w-full h-[300px] rounded-lg" />
+        </div>
       </div>
     </div>
   );

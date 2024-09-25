@@ -1,9 +1,8 @@
 "use client";
 
 import { ModeToggle } from "@/components/theme-toggle";
-import { MOBILE_WIDTH } from "@/lib/utils";
+import { useData } from "@/hooks/use-data";
 import { useChatbot } from "@/providers/chatbot-provider";
-import { useMedia } from "react-use";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { fullScreen } = useChatbot();
@@ -18,7 +17,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         >
           <ModeToggle />
 
-          <h1 className="text-gradient text-2xl md:text-4xl font-bold uppercase tracking-widest">
+          <h1 className="text-gradient text-lg md:text-4xl font-bold uppercase tracking-widest">
             Smart Street
           </h1>
         </div>

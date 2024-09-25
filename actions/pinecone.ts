@@ -37,13 +37,14 @@ export async function insertEmbedding(violation: ViolationType) {
 export async function searchEmbedding(embeddings: RecordValues) {
   const results = await index.query({
     vector: embeddings,
-    topK: 5,
+    topK: 4,
     includeMetadata: true,
   });
 
   return results;
 }
 
-export async function deleteAllEmbeddings() {
-  await index.deleteAll();
-}
+// Only for testing purposes
+// export async function deleteAllEmbeddings() {
+//   await index.deleteAll();
+// }

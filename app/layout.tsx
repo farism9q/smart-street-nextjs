@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./styles/globals.css";
 import { MiddleContentProvider } from "@/providers/middle-content-provider";
 import { ChatbotProvider } from "@/providers/chatbot-provider";
+import { QueryProviders } from "@/providers/query-client";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,16 +21,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <MiddleContentProvider>
-            <ChatbotProvider>{children}</ChatbotProvider>
-          </MiddleContentProvider>
-        </ThemeProvider>
+        <QueryProviders>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <MiddleContentProvider>
+              <ChatbotProvider>{children}</ChatbotProvider>
+            </MiddleContentProvider>
+          </ThemeProvider>
+        </QueryProviders>
       </body>
     </html>
   );
