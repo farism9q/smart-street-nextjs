@@ -25,8 +25,8 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      dbName: "DeepLearningCluster",
-      // dbName: "smart_street",
+      // dbName: "DeepLearningCluster",
+      dbName: "smart_street",
     };
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then(mongoose => {
       console.log("DB connected");

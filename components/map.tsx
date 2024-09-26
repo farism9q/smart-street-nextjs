@@ -1,11 +1,34 @@
 "use client";
 
-import { MapContainer, Popup, TileLayer, CircleMarker } from "react-leaflet";
 import { useEffect, useMemo, useState } from "react";
-import "leaflet/dist/leaflet.css";
+import { useTheme } from "next-themes";
 
-import "@/app/styles/leaflet.css";
 import { ViolationType } from "@/types/violation";
+
+import {
+  MapContainer,
+  Popup,
+  TileLayer,
+  CircleMarker,
+  Marker,
+} from "react-leaflet";
+import L from "leaflet";
+
+import MarkerClusterGroup from "react-leaflet-cluster";
+
+import "leaflet/dist/leaflet.css";
+import "@/app/styles/map.css";
+
+const CLASS_COLORS = {
+  "car": "red",
+  "bus": "orange",
+  "truck": "yellow",
+};
+
+const customIcon = new L.Icon({
+  iconUrl: "/location.svg",
+  iconSize: new L.Point(40, 47),
+});
 
 type MapProps = {
   violations: ViolationType[] | undefined;
@@ -19,6 +42,16 @@ export default function Map({ violations }: MapProps) {
     lat: 24.8607,
     lng: 46.6176,
   });
+  const { theme } = useTheme();
+
+  const attribution =
+    theme === "light"
+      ? "https://www.openstreetmap.org"
+      : "https://www.openstreetmap.org";
+  const mapUrl =
+    theme === "light"
+      ? `https://api.maptiler.com/maps/winter-v2/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY}`
+      : `https://api.maptiler.com/maps/toner-v2/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY}`;
 
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(position => {
@@ -53,6 +86,7 @@ export default function Map({ violations }: MapProps) {
     <div className="flex flex-col">
       {coordinates ? (
         <MapContainer
+          maxZoom={18}
           className="min-h-[500px] min-w-[500px] w-full h-full"
           center={
             meanCoords
@@ -62,11 +96,17 @@ export default function Map({ violations }: MapProps) {
           zoom={12}
           scrollWheelZoom={false}
         >
-          {violations?.map((violation, index) => (
+          {violations?.map(violation => (
             <CircleMarker
               key={violation._id}
               center={[violation.latitude, violation.longitude]}
-              pathOptions={{ color: "red" }}
+              pathOptions={{
+                color:
+                  CLASS_COLORS[
+                    violation.vehicle_type as keyof typeof CLASS_COLORS
+                  ],
+              }}
+              interactive={true}
               radius={5}
             >
               <Popup>
@@ -95,9 +135,44 @@ export default function Map({ violations }: MapProps) {
             </CircleMarker>
           ))}
 
+          <MarkerClusterGroup chunkedLoading>
+            {violations?.map((violation, index) => (
+              <Marker
+                icon={customIcon}
+                key={index}
+                position={[violation.latitude, violation.longitude]}
+                title={violation.vehicle_type}
+              >
+                <Popup>
+                  <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
+                    <p className="text-lg font-semibold">
+                      A{" "}
+                      <span className="text-blue-500">
+                        {violation.vehicle_type}
+                      </span>{" "}
+                      detected
+                    </p>
+                    <p className="text-sm">
+                      Coordinates:{" "}
+                      <span className="font-bold text-green-500">
+                        {violation.latitude}, {violation.longitude}
+                      </span>
+                    </p>
+                    <p className="text-sm">
+                      Violation:{" "}
+                      <span className="font-bold text-red-500">
+                        {violation.violation_type}
+                      </span>
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution={`&copy; <a href=${attribution}`}
+            url={mapUrl}
           />
         </MapContainer>
       ) : (
