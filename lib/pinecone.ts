@@ -7,6 +7,6 @@ const pc = new Pinecone({
 });
 // const index = pc.index("smart-street");
 // const index = pc.index("violation-data4");
-const index = pc.index("violation-data5");
+const index = pc.index("violation-data4");
 
 export { index };
