@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       system: `You are a helpful assistant. Check your knowledge base before answering any questions.
     Only respond to questions using information from tool calls.
     if no relevant information is found in the tool calls, respond, "Sorry, I don't know."`,
-      maxSteps: 4,
+      maxSteps: 5,
       tools: {
         getViolationsStats: tool({
           description:
@@ -101,6 +101,16 @@ export async function POST(req: Request) {
             });
           },
         }),
+
+        getRelevantInformation: tool({
+          description:
+            "Retrieve the relevant information about the violations recorded to answer the question.",
+          parameters: z.object({
+            query: z.string(),
+          }),
+          execute: ({ query }) => getRelevantInformation(query),
+        }),
+
         getAllViolations: tool({
           description:
             "Retrieve all violations recorded to answer the question.",
