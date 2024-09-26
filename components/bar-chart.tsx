@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -72,10 +72,17 @@ export default function BarChartComponent({
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="street_name"
-              tickLine={false}
+              tickLine={true}
               tickMargin={10}
-              axisLine={false}
-              tickFormatter={value => value}
+              axisLine={true}
+              tick={{ fontSize: 10 }}
+              tickFormatter={value => value.slice(0, 25)}
+            />
+            <YAxis
+              tickLine={true}
+              tickMargin={10}
+              axisLine={true}
+              tick={{ fontSize: 10 }}
             />
             <ChartTooltip
               cursor={false}
