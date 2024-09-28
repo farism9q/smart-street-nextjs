@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetViolationComparsion } from "@/hooks/use-get-violations-comparision";
 import { useGetViolationsStats } from "@/hooks/use-get-violations-stats";
 import { cn } from "@/lib/utils";
-import { CurrentDate } from "@/types/violation";
+import { CurrentDate, CurrentDateAdjEngToAr } from "@/types/violation";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { ComparisonCard } from "./comparison-card";
@@ -62,7 +62,7 @@ export const StatsCards = () => {
                 type="button"
                 onClick={() => setCurrent(date as CurrentDate)}
               >
-                {date}
+                {CurrentDateAdjEngToAr[date]}
               </button>
             ))}
           </div>
@@ -76,46 +76,47 @@ export const StatsCards = () => {
             <SkeletonLoading />
           ) : (
             <ComparisonCard
-              title="Total Violations"
+              title="اجمالي المخالفات"
               value={comparisonData?.current || 0}
               diff={comparisonDiff}
               whatToCompare={current}
             />
           )}
           <StatsCard
-            title="Street"
+            title="اسم الشارع"
             value={streetName.maxCount}
             subtitle={streetName.maxStreets}
             errorState={
               !streetName?.maxCount
-                ? `No max street with ${current}`
+                ? `لا يوجد شارع بأعلى مخالفات ${CurrentDateAdjEngToAr[current]}`
                 : undefined
             }
-            tooltip="Street with highest violations"
+            tooltip="أعلى طريق مخالفة"
             icon={AlertCircle}
           />
           <StatsCard
-            title="Violation Type"
+            title="نوع المخالفة"
             value={violationType.maxCount}
             subtitle={violationType?.maxViolations}
             errorState={
               !violationType?.maxCount
-                ? `No max violation type with ${current}`
+                ? `لا يوجد نوع مخالفة ${CurrentDateAdjEngToAr[current]}`
                 : undefined
             }
-            tooltip="Violation type with highest violations"
+            tooltip="نوع المخالفة الأعلى"
             icon={AlertCircle}
           />
           <StatsCard
-            title="Vehicle Type"
+            title="نوع المركبة"
             value={vehicleType?.maxCount}
             subtitle={vehicleType?.maxVehicles}
             errorState={
               !vehicleType?.maxCount
-                ? `No max vehicle type with ${current}`
+                ? // ? `No max vehicle type with ${current}`
+                  `لا يوجد نوع المركبة ${CurrentDateAdjEngToAr[current]}`
                 : undefined
             }
-            tooltip="Vehicle type with highest violations"
+            tooltip="نوع المركبة الأعلى"
             icon={AlertCircle}
           />
         </div>

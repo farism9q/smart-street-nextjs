@@ -7,6 +7,7 @@ import { useChat } from "ai/react";
 
 import {
   ArrowLeft,
+  Bot,
   CircleStop,
   Maximize2Icon,
   SendIcon,
@@ -122,7 +123,7 @@ export function Chatbot() {
           </Button>
         )}
         <h2 className="text-gradient text-2xl font-bold text-center">
-          Chatbot
+          مساعد آلي
         </h2>
         <div />
       </div>
@@ -146,14 +147,14 @@ export function Chatbot() {
               >
                 <div className="flex items-center mb-1">
                   {message.role === "assistant" ? (
-                    <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center mr-2">
-                      <span className="text-white text-xs font-bold">AI</span>
+                    <div className="p-1 rounded-full bg-pink-500 flex items-center justify-center mr-2">
+                      <Bot className="w-5 h-5" />
                     </div>
                   ) : (
                     <UserIcon className="w-5 h-5 mr-2" />
                   )}
                   <span className="font-semibold">
-                    {message.role === "user" ? "You" : "AI"}
+                    {message.role === "user" ? "أنت" : "المساعد الآلي"}
                   </span>
                 </div>
 

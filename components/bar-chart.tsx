@@ -61,7 +61,7 @@ export default function BarChartComponent({
   return (
     <Card>
       <CardHeader className="items-center pb-6 pt-8">
-        <CardTitle>Bar Chart</CardTitle>
+        <CardTitle className="font-medium">عدد المخالفات حسب الشارع</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer

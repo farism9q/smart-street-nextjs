@@ -32,3 +32,17 @@ export enum CurrentDate {
   month = "monthly",
   year = "yearly",
 }
+
+export const CurrentDateNounEngToAr = {
+  [CurrentDate.day]: "اليوم",
+  [CurrentDate.week]: "الأسبوع",
+  [CurrentDate.month]: "الشهر",
+  [CurrentDate.year]: "السنة",
+} as { [key in CurrentDate]: string };
+
+export const CurrentDateAdjEngToAr = {
+  [CurrentDate.day]: "يومي",
+  [CurrentDate.week]: "أسبوعي",
+  [CurrentDate.month]: "شهري",
+  [CurrentDate.year]: "سنوي",
+} as { [key in CurrentDate]: string };

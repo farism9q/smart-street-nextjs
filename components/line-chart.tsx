@@ -89,8 +89,8 @@ export default function LineChartComponent({
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle className="flex justify-between items-center pb-4">
-            Line Chart
+          <CardTitle className="font-medium pb-4">
+            <span>المخالفات حسب نوع المركبة</span>
           </CardTitle>
 
           <CardDescription>

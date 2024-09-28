@@ -1,8 +1,9 @@
-import { CurrentDate } from "@/types/violation";
+import { CurrentDate, CurrentDateNounEngToAr } from "@/types/violation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import CountUp from "react-countup";
 
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { formatPercentage } from "@/lib/utils";
 
 type ComparisonCardProps = {
   title: string;
@@ -41,11 +42,7 @@ export const ComparisonCard = ({
         "
         >
           <span className="text-xs font-semibold text-center">
-            Current{" "}
-            {Object.keys(CurrentDate).find(
-              key =>
-                CurrentDate[key as keyof typeof CurrentDate] === whatToCompare
-            )}
+            {CurrentDateNounEngToAr[whatToCompare]} الحالي
           </span>
         </div>
       </CardHeader>
@@ -64,15 +61,20 @@ export const ComparisonCard = ({
               <span
                 className={`flex items-center gap-x-2 text-xs font-semibold ${color}`}
               >
-                {diff.toFixed(2)}% {<DirectionIcon className="h-4 w-4" />}
+                {diff.toFixed(1)}%
+                <DirectionIcon className="h-4 w-4" />
               </span>
               <span className={`text-xs text-muted-foreground text-center`}>
-                {diff > 0 ? "increased" : diff === 0 ? "same" : "decreased"}{" "}
-                from previous {whatToCompare}
+                {direction === "increased"
+                  ? "زيادة"
+                  : direction === "decreased"
+                  ? "انخفاض"
+                  : "بقيت"}{" "}
+                عن {CurrentDateNounEngToAr[whatToCompare]} السابق
               </span>
             </div>
           ) : (
-            `No data from previous ${whatToCompare}`
+            `لا يوجد بيانات لهذا ${CurrentDateNounEngToAr[whatToCompare]}`
           )}
         </div>
       </CardContent>

@@ -10,7 +10,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { CurrentDate } from "@/types/violation";
+import { CurrentDate, CurrentDateNounEngToAr } from "@/types/violation";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import {
   endOfDay,
@@ -122,12 +122,10 @@ export default function PieChartComponent({
     return (
       <Card className="flex flex-col justify-center h-full">
         <CardHeader className="items-center pt-8">
-          <CardTitle>No data found</CardTitle>
+          <CardTitle>لا توجد بيانات</CardTitle>
         </CardHeader>
         <CardContent className="pb-0 flex justify-center items-center">
-          <p>
-            No data found for {basedOn === CurrentDate.day ? "today" : basedOn}
-          </p>
+          <p>لا يوجد بيانات {CurrentDateNounEngToAr[basedOn]} لعرضها</p>
         </CardContent>
       </Card>
     );
@@ -136,7 +134,9 @@ export default function PieChartComponent({
   return (
     <Card className="flex flex-col justify-center h-full">
       <CardHeader className="items-center pb-0 pt-8">
-        <CardTitle>Pie Chart</CardTitle>
+        <CardTitle className="font-medium">
+          المركبات المخالفة حسب نوعها خلال هذا {CurrentDateNounEngToAr[basedOn]}
+        </CardTitle>
       </CardHeader>
       <CardContent className="pb-0">
         <ChartContainer
@@ -179,7 +179,7 @@ export default function PieChartComponent({
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Number of violations
+                          الإجمالي للمخالفات
                         </tspan>
                       </text>
                     );

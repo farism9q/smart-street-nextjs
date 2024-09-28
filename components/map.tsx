@@ -33,7 +33,6 @@ const customIcon = new L.Icon({
   iconSize: new L.Point(40, 47),
 });
 
-// Create a strongly typed `PostSelect` object with `satisfies`
 const violationSelect = {
   date: true,
   id: true,
@@ -62,14 +61,10 @@ export default function Map({ violations }: MapProps) {
   });
   const { theme } = useTheme();
 
-  const attribution =
-    theme === "light"
-      ? "https://www.openstreetmap.org"
-      : "https://www.jawg.io?utm_medium=map&utm_source=attribution";
   const mapUrl =
     theme === "light"
-      ? `https://api.maptiler.com/maps/winter-v2/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY}`
-      : `https://tile.jawg.io/776f2eea-0d03-4db2-8e08-e026e6acfe69/{z}/{x}/{y}{r}.png?access-token=${process.env.NEXT_PUBLIC_JAWG_API_KEY}`;
+      ? `https://tile.jawg.io/1e6bb23b-f7a9-4ca7-a41d-1c1c4124ec5c/{z}/{x}/{y}{r}.png?access-token=${process.env.NEXT_PUBLIC_JAWG_API_KEY_LIGHT}`
+      : `https://tile.jawg.io/776f2eea-0d03-4db2-8e08-e026e6acfe69/{z}/{x}/{y}{r}.png?access-token=${process.env.NEXT_PUBLIC_JAWG_API_KEY_DARK}`;
 
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(position => {
@@ -196,7 +191,7 @@ export default function Map({ violations }: MapProps) {
             </LayersControl.Overlay>
 
             <TileLayer
-              attribution={`&copy; <a href=${attribution}`}
+              attribution={`&copy; <a href=\"https://www.jawg.io?utm_medium=map&utm_source=attribution\" target=\"_blank\">&copy; Jawg</a> - <a href=\"https://www.openstreetmap.org?utm_medium=map-attribution&utm_source=jawg\" target=\"_blank\">&copy; OpenStreetMap</a>&nbsp;contributors"`}
               url={mapUrl}
             />
           </LayersControl>
