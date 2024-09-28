@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
+// The idea of this seed is to create a set dummy data for violations in order to test the functions that will be used by:
+// the chatbot and to display the data in the dashboard
+
+// This can be run by running: "npm run db:seed"
 const violations: Prisma.violationsCreateInput[] = [
   {
     date: new Date("2024-09-14"),

@@ -31,12 +31,16 @@ export async function getAllViolation() {
       },
     });
 
+    console.log("I am an agent accessing the database. [getAllViolation]");
+
     return data;
   } catch (error: any) {
     throw new Error("Error fetching violations");
   }
 }
 
+// This function will be used in the dashboard to display the violations in a specific range
+// Not used in the chatbot
 export async function getAllViolationsInRange({
   from,
   to,
@@ -53,6 +57,10 @@ export async function getAllViolationsInRange({
         },
       },
     });
+
+    console.log(
+      "I am an agent accessing the database. [getAllViolationsInRange]"
+    );
 
     return data;
   } catch (error: any) {
@@ -85,6 +93,8 @@ export async function getViolationsStats({
   if (current === CurrentDate.day) {
     from = startOfDay(to);
   }
+
+  console.log("I am an agent accessing the database. [getViolationStats]");
 
   // 1- Group by street name
   const streetNameGroup = db.violations.groupBy({
@@ -157,6 +167,7 @@ export async function getViolationsStats({
   });
 
   // Execute the three queries in parallel since they are not dependent on each other
+  // This will improve the performance of the function
   const [streetName, vehicleType, violationType] = await db.$transaction([
     streetNameGroup,
     vehicleTypeGroup,
@@ -260,6 +271,10 @@ export async function getComparionOfTotalNbViolations({
     previousTo = endOfDay(subDays(new Date(), 1));
   }
 
+  console.log(
+    "I am an agent accessing the database. [getComparionOfTotalNbViolations]"
+  );
+
   const previous = db.violations.count({
     where: {
       date: {
@@ -287,4 +302,98 @@ export async function getComparionOfTotalNbViolations({
     current: currentData,
     previous: previousData,
   };
+}
+
+// This function will return the total number of violations recorded in the specified year
+export async function getTotalViolationsBasedOnYear(year: number) {
+  const from = startOfYear(new Date(year, 0, 1));
+  const to = endOfDay(new Date(year, 11, 31));
+
+  console.log(
+    "I am an agent accessing the database. [getTotalViolationsBasedOnYear]"
+  );
+
+  const data = db.violations.count({
+    where: {
+      date: {
+        gte: from,
+        lte: to,
+      },
+    },
+  });
+
+  return data;
+}
+
+// This function will return the highest number of violations recorded in a day,
+// along with the street name, vehicle type, and violation type that recorded the highest number of violations
+export async function getSummaryOfCurrentYear() {
+  const from = startOfYear(new Date());
+  const to = endOfDay(new Date());
+
+  console.log(
+    "I am an agent accessing the database. [getSummaryOfCurrentYear]"
+  );
+
+  const highestViolationsOnDay = db.violations.groupBy({
+    by: ["date"],
+    where: {
+      date: {
+        gte: from,
+        lte: to,
+      },
+    },
+    _count: {
+      date: true,
+    },
+    orderBy: {
+      _count: {
+        date: "desc",
+      },
+    },
+    _max: {
+      date: true,
+    },
+  });
+
+  const [totalViolations, violationsStats, highestViolatedDay] =
+    await Promise.all([
+      getTotalViolationsBasedOnYear(new Date().getFullYear()),
+      getViolationsStats({ current: CurrentDate.year }),
+      highestViolationsOnDay,
+    ]);
+
+  return {
+    totalViolations,
+    violationsStats,
+    highestViolatedDay: {
+      day: highestViolatedDay[0]._max.date,
+      count: highestViolatedDay[0]._count.date,
+    },
+  };
+}
+
+// This function will return the year, month, and day with the highest number of violations from all the recorded violations
+// So not only the current year, but all the years
+export async function getHighestViolationsYearMonthDay() {
+  console.log(
+    "I am an agent accessing the database. [getHighestViolationsYearMonthDay]"
+  );
+
+  const data = await db.violations.groupBy({
+    by: ["date"],
+    _count: {
+      date: true,
+    },
+    orderBy: {
+      _count: {
+        date: "desc",
+      },
+    },
+    _max: {
+      date: true,
+    },
+  });
+
+  return data;
 }
