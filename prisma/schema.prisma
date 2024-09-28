@@ -8,12 +8,10 @@ datasource db {
 }
 
 
-
-// This should not be updated since this application is read-only.
-// The upsert operations are applied from different persons.
 model violations {
   id                   String   @id @default(auto()) @map("_id") @db.ObjectId
-  v                    Int      @map("__v")
+  /// Multiple data types found: Int: 77.3%, BigInt: 22.7% out of 44 sampled entries
+  v                    Json     @map("__v")
   date                 DateTime @db.Date
   latitude             Float
   license_plate_number String

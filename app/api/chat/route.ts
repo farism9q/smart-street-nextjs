@@ -107,15 +107,6 @@ export async function POST(req: Request) {
           },
         }),
 
-        getRelevantInformation: tool({
-          description:
-            "Retrieve the relevant information about the violations recorded to answer the question.",
-          parameters: z.object({
-            query: z.string(),
-          }),
-          execute: ({ query }) => getRelevantInformation(query),
-        }),
-
         getAllViolations: tool({
           description:
             "Retrieve all violations recorded to answer the question.",
