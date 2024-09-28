@@ -98,7 +98,7 @@ export default function Map({ violations }: MapProps) {
       lat: lat / (violations?.length || 1),
       lng: lng / (violations?.length || 1),
     };
-  }, [violations]);
+  }, [violations, coordinates]);
 
   return (
     <div className="flex flex-col">
