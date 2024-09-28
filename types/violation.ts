@@ -25,9 +25,10 @@ export type ViolationStats = {
   } | null;
 };
 
-// This is about getting information based on the current date (year, month, day)
+// This is about getting information based on the current date (daily, weekly, monthly, yearly)
 export enum CurrentDate {
-  year = "year",
-  month = "month",
-  day = "day",
+  day = "daily",
+  week = "weekly",
+  month = "monthly",
+  year = "yearly",
 }

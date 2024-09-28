@@ -5,15 +5,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetViolationComparsion } from "@/hooks/use-get-violations-comparision";
 import { useGetViolationsStats } from "@/hooks/use-get-violations-stats";
 import { cn } from "@/lib/utils";
-import { CurrentDate, ViolationStats } from "@/types/violation";
-import { AlertCircle, ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { CurrentDate } from "@/types/violation";
+import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { ComparisonCard } from "./comparison-card";
 import PieChartComponent from "@/components/pie-chart";
 
 export const StatsCards = () => {
-  const [current, setCurrent] = useState<CurrentDate>(CurrentDate.year);
-  
+  const [current, setCurrent] = useState<CurrentDate>(CurrentDate.day);
+
   const { data, isLoading, error } = useGetViolationsStats({
     current,
   });
@@ -21,7 +21,6 @@ export const StatsCards = () => {
     useGetViolationComparsion({
       current,
     });
-
 
   if (isLoading) {
     return (
@@ -37,23 +36,23 @@ export const StatsCards = () => {
     return <p>Something went wrong</p>;
   }
 
-  const { streetName, violationType, vehicleType } = data as ViolationStats;
-
   let comparisonDiff = null;
 
   if (comparisonData) {
     comparisonDiff =
-      ((comparisonData.current?.total - comparisonData.previous?.total) /
-        comparisonData.previous?.total) *
+      ((comparisonData.current - comparisonData.previous) /
+        comparisonData.previous) *
       100;
   }
+
+  const { streetName, vehicleType, violationType } = data;
 
   return (
     <div className="flex flex-col gap-y-4">
       <div className="w-full overflow-hidden">
         <ScrollArea className="w-full overflow-hidden whitespace-nowrap rounded-md border">
           <div className="flex">
-            {Object.values(["year", "month", "day"]).map(date => (
+            {Object.values(CurrentDate).map(date => (
               <button
                 key={date}
                 className={cn(
@@ -73,20 +72,20 @@ export const StatsCards = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* {isLoadingComparison ? (
+          {isLoadingComparison ? (
             <SkeletonLoading />
           ) : (
             <ComparisonCard
               title="Total Violations"
-              value={comparisonData?.current?.total}
+              value={comparisonData?.current || 0}
               diff={comparisonDiff}
               whatToCompare={current}
             />
-          )} */}
+          )}
           <StatsCard
             title="Street"
-            value={streetName?.maxCount}
-            subtitle={streetName?.maxStreets}
+            value={streetName.maxCount}
+            subtitle={streetName.maxStreets}
             errorState={
               !streetName?.maxCount
                 ? `No max street with ${current}`
@@ -97,7 +96,7 @@ export const StatsCards = () => {
           />
           <StatsCard
             title="Violation Type"
-            value={violationType?.maxCount}
+            value={violationType.maxCount}
             subtitle={violationType?.maxViolations}
             errorState={
               !violationType?.maxCount
@@ -122,7 +121,7 @@ export const StatsCards = () => {
         </div>
 
         {/* PIE-CHART */}
-        <PieChartComponent current={current} />
+        <PieChartComponent basedOn={current} />
       </div>
     </div>
   );

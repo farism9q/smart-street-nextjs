@@ -14,21 +14,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import BarChartComponent from "@/components/bar-chart";
-import { ViolationType } from "@/types/violation";
 import LineChartComponent from "@/components/line-chart";
 import AreaChartComponent from "@/components/area-chart";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type ChartProps = {
-  // violations: ViolationType[];
   className?: string;
 };
 
-export function Charts({
-  // violations,
-  className,
-}: ChartProps) {
+export function Charts({ className }: ChartProps) {
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),

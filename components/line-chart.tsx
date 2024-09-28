@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 
 import {
   Card,
@@ -16,7 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ViolationType } from "@/types/violation";
+import { violations as ViolationType } from "@prisma/client";
 import { getDateString } from "@/lib/utils";
 
 // This function will be used to generate the data for the line chart
@@ -71,9 +71,9 @@ export default function LineChartComponent({
   const [activeChart, setActiveChart] =
     useState<keyof typeof chartConfig>("car");
 
-  // const [year, setYear] = useState<number>(2024);
-
   const data = generateLineChartData(violations);
+
+  const noViolations = violations.length === 0;
 
   const total = useMemo(
     () => ({
@@ -89,14 +89,12 @@ export default function LineChartComponent({
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <div className="flex justify-between items-center pb-4">
-            <CardTitle>Line Chart</CardTitle>
-          </div>
+          <CardTitle className="flex justify-between items-center pb-4">
+            Line Chart
+          </CardTitle>
 
           <CardDescription>
-            Showing the total number of violations for{" "}
-            {activeChart === "violations" ? "all vehicle" : activeChart} over
-            time.
+            جميع المخالفات المسجلة حسب نوع المركبة
           </CardDescription>
         </div>
         <div className="flex">
@@ -123,7 +121,7 @@ export default function LineChartComponent({
       <CardContent className="px-2 sm:p-6">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          className="aspect-auto h-[250px] w-full py-2"
         >
           <LineChart
             accessibilityLayer
@@ -131,6 +129,7 @@ export default function LineChartComponent({
             margin={{
               left: 12,
               right: 12,
+              top: 6,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -142,25 +141,20 @@ export default function LineChartComponent({
               minTickGap={32}
               tickFormatter={value => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
+                return date.toLocaleDateString("ar-US", {
                   month: "short",
                   day: "numeric",
                 });
               }}
             />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={value => value.toLocaleString()}
-            />
+
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
                   nameKey="violations"
                   labelFormatter={value => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("ar-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
@@ -178,6 +172,14 @@ export default function LineChartComponent({
             />
           </LineChart>
         </ChartContainer>
+        {noViolations && (
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl font-bold">لا توجد بيانات لعرضها</h3>
+            <p className="text-muted-foreground">
+              لا توجد بيانات لعرضها من التاريخ المحدد
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

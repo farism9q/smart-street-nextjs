@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+
+// This should not be updated since this application is read-only.
+// The upsert operations are applied from different persons.
+model violations {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  v                    Int      @map("__v")
+  date                 DateTime @db.Date
+  latitude             Float
+  license_plate_number String
+  longitude            Float
+  street_name          String
+  time                 String
+  vehicle_type         String
+  violation_type       String
+  zip_code             String
+}

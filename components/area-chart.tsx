@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -18,7 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { ViolationType } from "@/types/violation";
+import { violations as ViolationType } from "@prisma/client";
 import { getDateString } from "@/lib/utils";
 
 // This function will be used to generate the data for the area chart
@@ -64,13 +64,17 @@ export default function AreaChartComponent({
 }) {
   const data = generateAreaChartDate(violations) as any;
 
+  const noViolations = data.length === 0;
+
   return (
     <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-        <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Area Chart</CardTitle>
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+          <CardTitle className="flex justify-between items-center pb-4">
+            Area Chart
+          </CardTitle>
           <CardDescription>
-            Showing the total number of violated vehicles over time.
+            جميع المخالفات المسجلة حسب نوع المركبة
           </CardDescription>
         </div>
       </CardHeader>
@@ -127,17 +131,11 @@ export default function AreaChartComponent({
               minTickGap={32}
               tickFormatter={value => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
+                return date.toLocaleDateString("ar-US", {
                   month: "short",
                   day: "numeric",
                 });
               }}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={value => value.toLocaleString()}
             />
             <ChartTooltip
               cursor={false}
@@ -145,7 +143,7 @@ export default function AreaChartComponent({
                 <ChartTooltipContent
                   className="w-[160px]"
                   labelFormatter={value => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("ar-US", {
                       month: "short",
                       day: "numeric",
                     });
@@ -176,9 +174,17 @@ export default function AreaChartComponent({
               stackId="a"
             />
 
-            <ChartLegend content={<ChartLegendContent />} />
+            {!noViolations && <ChartLegend content={<ChartLegendContent />} />}
           </AreaChart>
         </ChartContainer>
+        {noViolations && (
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl font-bold">لا توجد بيانات لعرضها</h3>
+            <p className="text-muted-foreground">
+              لا توجد بيانات لعرضها من التاريخ المحدد
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

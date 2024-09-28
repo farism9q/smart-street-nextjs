@@ -1,11 +1,12 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { CurrentDate } from "@/types/violation";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import CountUp from "react-countup";
 
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
 type ComparisonCardProps = {
   title: string;
-  value: number | null | undefined;
+  value: number;
   diff: number | null | undefined;
   whatToCompare: CurrentDate;
 };
@@ -19,8 +20,9 @@ export const ComparisonCard = ({
   const direction = diff ? (diff > 0 ? "increased" : "decreased") : "same";
 
   let color;
-  direction === "decreased" && (color = "text-green-500");
-  direction === "increased" && (color = "text-red-500");
+  // Since the increasing of violations is a bad thing, we want to show it in red color.
+  direction === "increased" && (color = "text-rose-500");
+  direction === "decreased" && (color = "text-emerald-500");
   direction === "same" && (color = "text-gray-500");
 
   const DirectionIcon =
@@ -39,7 +41,11 @@ export const ComparisonCard = ({
         "
         >
           <span className="text-xs font-semibold text-center">
-            Current {whatToCompare}
+            Current{" "}
+            {Object.keys(CurrentDate).find(
+              key =>
+                CurrentDate[key as keyof typeof CurrentDate] === whatToCompare
+            )}
           </span>
         </div>
       </CardHeader>
@@ -48,9 +54,11 @@ export const ComparisonCard = ({
           {title}
         </CardTitle>
 
-        <div className="text-2xl font-bold">{value}</div>
+        <h1 className="font-bold text-2xl mb-2 line-clamp-1 break-all">
+          <CountUp preserveValue start={0} end={value} />
+        </h1>
 
-        <p className="text-xs text-muted-foreground text-center">
+        <div className="text-xs text-muted-foreground text-center">
           {diff || diff === 0 ? (
             <div className={`flex flex-col items-center`}>
               <span
@@ -66,7 +74,7 @@ export const ComparisonCard = ({
           ) : (
             `No data from previous ${whatToCompare}`
           )}
-        </p>
+        </div>
       </CardContent>
     </Card>
   );

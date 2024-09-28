@@ -6,13 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:seed": "tsx ./prisma/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.61",
     "@maptiler/leaflet-maptilersdk": "^2.0.0",
     "@pinecone-database/pinecone": "^3.0.3",
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "^5.20.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-radio-group": "^1.2.0",
@@ -29,6 +30,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.3.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.441.0",
@@ -37,6 +39,7 @@
     "next-themes": "^0.3.0",
     "openai": "^4.62.1",
     "react": "^18.3.1",
+    "react-countup": "^6.5.3",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
@@ -58,7 +61,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.7",
     "postcss": "^8",
-    "prisma": "^5.19.1",
+    "prisma": "^5.20.0",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"

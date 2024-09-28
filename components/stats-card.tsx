@@ -20,7 +20,7 @@ import { CurrentDate } from "@/types/violation";
 
 type StatsCardProps = {
   title: string | undefined;
-  subtitle: string[] | undefined;
+  subtitle: string[] | null;
   value: number | undefined;
   tooltip?: string;
   errorState?: string;

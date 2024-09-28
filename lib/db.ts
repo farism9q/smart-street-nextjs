@@ -1,46 +1,11 @@
-import mongoose from "mongoose";
+import { PrismaClient } from "@prisma/client";
 
-const MONGODB_URI = process.env.DATABASE_URL;
-
-declare const global: {
-  mongoose: any;
-};
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "MongoDB connection string is not provided. Check the .env file."
-  );
+declare global {
+  var prisma: PrismaClient | undefined;
 }
 
-let cached = global.mongoose;
+export const db = globalThis.prisma || new PrismaClient();
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (process.env.NODE_ENV !== "production") {
+  globalThis.prisma = db;
 }
-
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-      // dbName: "DeepLearningCluster",
-      dbName: "smart_street",
-    };
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then(mongoose => {
-      console.log("DB connected");
-      return mongoose;
-    });
-  }
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
-  return cached.conn;
-}
-
-export default dbConnect;
