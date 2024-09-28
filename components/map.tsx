@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 
-import { violations as ViolationType } from "@prisma/client";
+import { violations as ViolationType, Prisma } from "@prisma/client";
 
 import {
   MapContainer,
@@ -33,8 +33,23 @@ const customIcon = new L.Icon({
   iconSize: new L.Point(40, 47),
 });
 
+// Create a strongly typed `PostSelect` object with `satisfies`
+const violationSelect = {
+  date: true,
+  id: true,
+  latitude: true,
+  longitude: true,
+  vehicle_type: true,
+  violation_type: true,
+  license_plate_number: true,
+  street_name: true,
+  time: true,
+} satisfies Prisma.violationsSelect;
+
 type MapProps = {
-  violations: ViolationType[] | undefined;
+  violations:
+    | Prisma.violationsGetPayload<{ select: typeof violationSelect }>[]
+    | undefined;
 };
 
 export default function Map({ violations }: MapProps) {
