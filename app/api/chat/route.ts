@@ -70,13 +70,18 @@ export async function POST(req: Request) {
       tools: {
         getViolationsStats: tool({
           description:
-            "Retrieve the statistics of the violations recorded based on the current date. If the current date is a year, it will return the total number of violations recorded in current year. The same applies to the month and day. Include all values if there more than one valeu",
+            "Retrieve the statistics of the violations recorded based on the current date. If the current date is a year, it will return the total number of violations recorded in current year. The same applies to the month, week, and day. Include all values if there more than one valeu",
           parameters: z.object({
-            current: z.enum(["year", "month", "day"]),
+            current: z.enum([
+              CurrentDate.day,
+              CurrentDate.week,
+              CurrentDate.month,
+              CurrentDate.year,
+            ]),
           }),
-          execute: ({ current }: { current: "year" | "month" | "day" }) =>
+          execute: ({ current }) =>
             getViolationsStats({
-              current: current as CurrentDate,
+              current,
             }),
         }),
 
