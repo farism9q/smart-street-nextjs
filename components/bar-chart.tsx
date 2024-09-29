@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,8 +9,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ViolationType } from "@/types/violation";
-import { useData } from "@/hooks/use-data";
+import { violations as ViolationType } from "@prisma/client";
 
 // This function will be used to generate the data for the bar chart
 function generateBarChartData(violations: ViolationType[]) {
@@ -27,11 +26,10 @@ function generateBarChartData(violations: ViolationType[]) {
     groupedData[street_name][vehicle_type]++;
   });
 
-  // Transform groupedData into chartData array format
   const chartData = Object.keys(groupedData).map(street_name => {
     return {
       street_name,
-      ...groupedData[street_name], // Spread vehicle types as individual properties
+      ...groupedData[street_name],
     };
   });
 
@@ -58,15 +56,17 @@ export default function BarChartComponent({
 }: {
   violations: ViolationType[];
 }) {
+  const noViolations = violations.length === 0;
+
   return (
     <Card>
-      <CardHeader className="items-center pb-0 pt-8">
-        <CardTitle>Bar Chart</CardTitle>
+      <CardHeader className="items-center pb-6 pt-8">
+        <CardTitle className="font-medium">عدد المخالفات حسب الشارع</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square w-full max-h-[250px]"
+          className="mx-auto aspect-square w-full max-h-[300px] md:max-h-[250px]"
         >
           <BarChart accessibilityLayer data={generateBarChartData(violations)}>
             <CartesianGrid vertical={false} />
@@ -78,12 +78,6 @@ export default function BarChartComponent({
               tick={{ fontSize: 10 }}
               tickFormatter={value => value.slice(0, 25)}
             />
-            <YAxis
-              tickLine={true}
-              tickMargin={10}
-              axisLine={true}
-              tick={{ fontSize: 10 }}
-            />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
@@ -93,6 +87,14 @@ export default function BarChartComponent({
             <Bar dataKey="bus" fill="var(--color-bus)" radius={4} />
           </BarChart>
         </ChartContainer>
+        {noViolations && (
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl font-bold">لا توجد بيانات لعرضها</h3>
+            <p className="text-muted-foreground">
+              لا توجد بيانات لعرضها من التاريخ المحدد
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

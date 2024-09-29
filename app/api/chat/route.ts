@@ -4,11 +4,20 @@ import {
   getAllViolation,
   getViolationsStats,
   getAllViolationsInRange,
+  getTotalViolationsBasedOnYear,
+  getSummaryOfCurrentYear,
+  getHighestViolationsYearMonthDay,
 } from "@/actions/violation";
 import { Metadata } from "@/types/pinecone-record";
 import { CurrentDate } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
-import { streamText, convertToCoreMessages, CoreMessage, tool } from "ai";
+import {
+  streamText,
+  convertToCoreMessages,
+  CoreMessage,
+  tool,
+  generateText,
+} from "ai";
 import { formatDate, parseISO } from "date-fns";
 import { z } from "zod";
 
@@ -60,55 +69,53 @@ export async function POST(req: Request) {
       (message: CoreMessage) => message.content !== ""
     );
 
+    const userQuery = filteredMessages[filteredMessages.length - 1].content;
+
     const result = await streamText({
       model: openai("gpt-4o"),
       messages: [...convertToCoreMessages(filteredMessages)],
-      system: `You are a helpful assistant. Check your knowledge base before answering any questions.
-    Only respond to questions using information from tool calls.
-    if no relevant information is found in the tool calls, respond, "Sorry, I don't know."`,
+      system: `You are a helpful assistant. Use the provided tools to answer the user's questions.
+      Here is the user's question: ${userQuery}.
+      If the information cannot be found in the tools, respond with "Sorry, I don't know."`,
       maxSteps: 5,
       tools: {
         getViolationsStats: tool({
           description:
-            "Retrieve the statistics of the violations recorded based on the current date. If the current date is a year, it will return the total number of violations recorded in current year. The same applies to the month and day. Include all values if there more than one valeu",
+            "Retrieve the statistics of the violations recorded based on the current date. If the current date is a year, it will return the total number of violations recorded in current year. The same applies to the month, week, and day. Include all values if there more than one valeu",
           parameters: z.object({
-            current: z.enum(["year", "month", "day"]),
+            current: z.enum([
+              CurrentDate.day,
+              CurrentDate.week,
+              CurrentDate.month,
+              CurrentDate.year,
+            ]),
           }),
-          execute: ({ current }: { current: "year" | "month" | "day" }) =>
+          execute: ({ current }) =>
             getViolationsStats({
-              current: current as CurrentDate,
+              current,
             }),
         }),
 
-        getCurrentDate: tool({
-          description: "Use this tool to get the current date.",
+        getHighestViolationsYearMonthDay: tool({
+          description: `Retrieve the time period (year, month, or day) with the highest number of recorded violations.
+          This tool will return the year, month, and day with the highest number of violations.`,
           parameters: z.object({}),
-          execute: async () =>
-            Promise.resolve(formatDate(new Date(), "yyyy-MM-dd")),
+          execute: () => getHighestViolationsYearMonthDay(),
+        }),
+        getTotalViolationsBasedOnYear: tool({
+          description:
+            "Get the total number of violations recorded in the specified year.",
+          parameters: z.object({
+            year: z.number(),
+          }),
+          execute: ({ year }) => getTotalViolationsBasedOnYear(year),
         }),
 
-        getAllViolationsInRange: tool({
+        getSummaryOfCurrentYear: tool({
           description:
-            "Retrieve all violations recorded in the specified range of dates. If no range is specified, act as you are in 2024.",
-          parameters: z.object({
-            from: z.string(),
-            to: z.string(),
-          }),
-          execute: ({ from, to }) => {
-            return getAllViolationsInRange({
-              from: parseISO(from),
-              to: parseISO(to),
-            });
-          },
-        }),
-
-        getRelevantInformation: tool({
-          description:
-            "Retrieve the relevant information about the violations recorded to answer the question.",
-          parameters: z.object({
-            query: z.string(),
-          }),
-          execute: ({ query }) => getRelevantInformation(query),
+            "Get the total number of violations recorded in the current year, highest number of violations based on street, vehicle, violation type, and the day.",
+          parameters: z.object({}),
+          execute: () => getSummaryOfCurrentYear(),
         }),
 
         getAllViolations: tool({

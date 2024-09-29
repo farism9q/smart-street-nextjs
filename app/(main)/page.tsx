@@ -41,7 +41,7 @@ export default function DashboardPage() {
                 flex justify-center items-center gap-2 bg-primary/10 p-2 rounded-lg shadow-lg"
             >
               <p className="font-extrabold tracking-widest uppercase bg-clip-text text-transparent bg-[linear-gradient(to_right,theme(colors.zinc.600),theme(colors.yellow.400),theme(colors.yellow.500),theme(colors.zinc.600),theme(colors.yellow.400),theme(colors.yellow.500),theme(colors.zinc.700))] bg-[length:200%_auto] animate-gradient">
-                Chatbot
+                مساعد آلي
               </p>
             </div>
           )}

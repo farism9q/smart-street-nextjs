@@ -7,6 +7,7 @@ import { useChat } from "ai/react";
 
 import {
   ArrowLeft,
+  Bot,
   CircleStop,
   Maximize2Icon,
   SendIcon,
@@ -24,11 +25,21 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 
 const QUICK_QUESTIONS = [
-  "ما هي أنواع المركبات التي تسبب أكثر المخالفات  في الشهر الحالي؟",
+  "ما هي أنواع المركبات التي تسبب أكثر المخالفات في هذا اليوم؟",
+  "ما هو نوع المخالفة الأكثر شيوعًا في هذا اليوم؟",
+  "ما هو الطريق الأكثر شيوعًا للمخالفات في هذا اليوم؟",
+  "ما هي أنواع المركبات التي تسبب أكثر المخالفات في الأسبوع الحالي؟",
+  "ما هو نوع المخالفة الأكثر شيوعًا في الأسبوع الحالي؟",
+  "ما هو الطريق الأكثر شيوعًا للمخالفات في الأسبوع الحالي؟",
+  "ما هي أنواع المركبات التي تسبب أكثر المخالفات في الشهر الحالي؟",
   "ما هو نوع المخالفة الأكثر شيوعًا في الشهر الحالي؟",
-  "ما هو الطريق الأكثر شيوعًا للمخالفات  في الشهر الحالي؟",
-  "ما هي السنة الأكثر شيوعًا للمخالفات؟",
-  "ما هو الشهر الأكثر شيوعًا للمخالفات؟",
+  "ما هو الطريق الأكثر شيوعًا للمخالفات في الشهر الحالي؟",
+  "ما هي السنة التي سجلت أكبر عدد من المخالفات؟",
+  "ما هو الشهر الذي سجل أكبر عدد من المخالفات؟",
+  "ما هو اليوم الذي سجل أكبر عدد من المخالفات في العام الحالي؟",
+  "ما هي أنواع المركبات التي تسبب أكثر المخالفات في السنة الحالية؟",
+  "ما هو نوع المخالفة الأكثر شيوعًا في السنة الحالية؟",
+  "ما هو الطريق الأكثر شيوعًا للمخالفات في السنة الحالية؟",
 ];
 
 export function Chatbot() {
@@ -112,7 +123,7 @@ export function Chatbot() {
           </Button>
         )}
         <h2 className="text-gradient text-2xl font-bold text-center">
-          Chatbot
+          مساعد آلي
         </h2>
         <div />
       </div>
@@ -136,14 +147,14 @@ export function Chatbot() {
               >
                 <div className="flex items-center mb-1">
                   {message.role === "assistant" ? (
-                    <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center mr-2">
-                      <span className="text-white text-xs font-bold">AI</span>
+                    <div className="p-1 rounded-full bg-pink-500 flex items-center justify-center mr-2">
+                      <Bot className="w-5 h-5" />
                     </div>
                   ) : (
                     <UserIcon className="w-5 h-5 mr-2" />
                   )}
                   <span className="font-semibold">
-                    {message.role === "user" ? "You" : "AI"}
+                    {message.role === "user" ? "أنت" : "المساعد الآلي"}
                   </span>
                 </div>
 

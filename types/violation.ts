@@ -25,9 +25,24 @@ export type ViolationStats = {
   } | null;
 };
 
-// This is about getting information based on the current date (year, month, day)
+// This is about getting information based on the current date (daily, weekly, monthly, yearly)
 export enum CurrentDate {
-  year = "year",
-  month = "month",
-  day = "day",
+  day = "daily",
+  week = "weekly",
+  month = "monthly",
+  year = "yearly",
 }
+
+export const CurrentDateNounEngToAr = {
+  [CurrentDate.day]: "اليوم",
+  [CurrentDate.week]: "الأسبوع",
+  [CurrentDate.month]: "الشهر",
+  [CurrentDate.year]: "السنة",
+} as { [key in CurrentDate]: string };
+
+export const CurrentDateAdjEngToAr = {
+  [CurrentDate.day]: "يومي",
+  [CurrentDate.week]: "أسبوعي",
+  [CurrentDate.month]: "شهري",
+  [CurrentDate.year]: "سنوي",
+} as { [key in CurrentDate]: string };

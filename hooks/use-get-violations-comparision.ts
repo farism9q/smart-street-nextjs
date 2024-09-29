@@ -11,7 +11,7 @@ export function useGetViolationComparsion({
     queryKey: ["violations-comparison", current],
     queryFn: async () => {
       const data = await getComparionOfTotalNbViolations({
-        current,
+        basedOn: current,
       });
 
       if (data instanceof Error) {
@@ -22,11 +22,7 @@ export function useGetViolationComparsion({
         throw new Error("No data found");
       }
 
-      return data as {
-        current: { total: number; _id: any };
-        previous: { total: number; _id: any };
-        compare: CurrentDate;
-      };
+      return data;
     },
   });
 

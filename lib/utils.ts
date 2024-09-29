@@ -19,3 +19,27 @@ export function getDay(date: Date) {
 export function getDateString(date: Date) {
   return format(date, "yyyy-MM-dd"); // (e.g. 2024-09-22)
 }
+
+export const formatPercentage = (
+  value: number,
+  options: { addPrefix?: boolean } = {
+    addPrefix: true,
+  }
+) => {
+  const result = new Intl.NumberFormat("ar-SA");
+
+  if (options.addPrefix && value > 0) {
+    return `+${result.format(value).replace("+", "")} %`;
+  }
+  if (options.addPrefix && value < 0) {
+    return `-${result.format(value).replace("-", "")} %`;
+  }
+
+  return result;
+};
+
+export const formatNumber = (value: number) => {
+  const result = new Intl.NumberFormat("ar-SA").format(value);
+
+  return Number(result);
+};

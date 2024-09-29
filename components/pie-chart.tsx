@@ -10,17 +10,20 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { CurrentDate, ViolationType } from "@/types/violation";
+import { CurrentDate, CurrentDateNounEngToAr } from "@/types/violation";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import {
   endOfDay,
   endOfMonth,
+  endOfWeek,
   endOfYear,
   startOfDay,
   startOfMonth,
+  startOfWeek,
   startOfYear,
 } from "date-fns";
 import { Skeleton } from "./ui/skeleton";
+import { violations as ViolationType } from "@prisma/client";
 
 function generatePieChartData(violations: ViolationType[]) {
   const vehicleCountsByType: any = {};
@@ -66,33 +69,30 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function PieChartComponent({
-  current,
+  basedOn,
 }: {
-  current: CurrentDate;
+  basedOn: CurrentDate;
 }) {
   const { from, to } = useMemo(() => {
     let from: Date;
     let to: Date;
 
-    if (current === CurrentDate.year) {
+    if (basedOn === CurrentDate.year) {
       from = startOfYear(new Date());
       to = endOfYear(new Date());
-    } else if (current === CurrentDate.month) {
+    } else if (basedOn === CurrentDate.month) {
       from = startOfMonth(new Date());
       to = endOfMonth(new Date());
-    }
-    // Might be implemented later
-    // else if (current === CurrentDate.week) {
-    //   from = startOfWeek(new Date());
-    //   to = endOfWeek(new Date());
-    // }
-    else {
+    } else if (basedOn === CurrentDate.week) {
+      from = startOfWeek(new Date());
+      to = endOfWeek(new Date());
+    } else {
       from = startOfDay(new Date());
       to = endOfDay(new Date());
     }
 
     return { from, to };
-  }, [current]);
+  }, [basedOn]);
 
   const {
     data: violations,
@@ -122,17 +122,10 @@ export default function PieChartComponent({
     return (
       <Card className="flex flex-col justify-center h-full">
         <CardHeader className="items-center pt-8">
-          <CardTitle>No data found</CardTitle>
+          <CardTitle>لا توجد بيانات</CardTitle>
         </CardHeader>
         <CardContent className="pb-0 flex justify-center items-center">
-          <p>
-            No data found for{" "}
-            {current === CurrentDate.year
-              ? "year"
-              : current === CurrentDate.month
-              ? "month"
-              : "today"}
-          </p>
+          <p>لا يوجد بيانات {CurrentDateNounEngToAr[basedOn]} لعرضها</p>
         </CardContent>
       </Card>
     );
@@ -141,7 +134,9 @@ export default function PieChartComponent({
   return (
     <Card className="flex flex-col justify-center h-full">
       <CardHeader className="items-center pb-0 pt-8">
-        <CardTitle>Pie Chart</CardTitle>
+        <CardTitle className="font-medium">
+          المركبات المخالفة حسب نوعها خلال هذا {CurrentDateNounEngToAr[basedOn]}
+        </CardTitle>
       </CardHeader>
       <CardContent className="pb-0">
         <ChartContainer
@@ -184,7 +179,7 @@ export default function PieChartComponent({
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Number of violations
+                          الإجمالي للمخالفات
                         </tspan>
                       </text>
                     );

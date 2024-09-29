@@ -4,8 +4,8 @@ import { getEmbedding } from "@/actions/openai";
 import { index } from "@/lib/pinecone";
 import { getDay, getMonth } from "@/lib/utils";
 import { Metadata } from "@/types/pinecone-record";
-import { ViolationType } from "@/types/violation";
 import { RecordValues } from "@pinecone-database/pinecone";
+import { violations as ViolationType } from "@prisma/client";
 
 export async function insertEmbedding(violation: ViolationType) {
   const violationText = `A ${violation.vehicle_type} was detected ${violation.violation_type} on ${violation.street_name} at ${violation.time} on ${violation.date} at this coords: ${violation.latitude}, ${violation.longitude}`;
@@ -16,7 +16,7 @@ export async function insertEmbedding(violation: ViolationType) {
   // Store the embeddings
   await index.upsert([
     {
-      id: violation._id,
+      id: violation.id,
       values: embeddings,
       metadata: {
         vehicle_type: violation.vehicle_type,

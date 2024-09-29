@@ -1,11 +1,13 @@
+import { CurrentDate, CurrentDateNounEngToAr } from "@/types/violation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { CurrentDate } from "@/types/violation";
+import CountUp from "react-countup";
 
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { formatPercentage } from "@/lib/utils";
 
 type ComparisonCardProps = {
   title: string;
-  value: number | null | undefined;
+  value: number;
   diff: number | null | undefined;
   whatToCompare: CurrentDate;
 };
@@ -19,8 +21,9 @@ export const ComparisonCard = ({
   const direction = diff ? (diff > 0 ? "increased" : "decreased") : "same";
 
   let color;
-  direction === "decreased" && (color = "text-green-500");
-  direction === "increased" && (color = "text-red-500");
+  // Since the increasing of violations is a bad thing, we want to show it in red color.
+  direction === "increased" && (color = "text-rose-500");
+  direction === "decreased" && (color = "text-emerald-500");
   direction === "same" && (color = "text-gray-500");
 
   const DirectionIcon =
@@ -39,7 +42,7 @@ export const ComparisonCard = ({
         "
         >
           <span className="text-xs font-semibold text-center">
-            Current {whatToCompare}
+            {CurrentDateNounEngToAr[whatToCompare]} الحالي
           </span>
         </div>
       </CardHeader>
@@ -48,25 +51,32 @@ export const ComparisonCard = ({
           {title}
         </CardTitle>
 
-        <div className="text-2xl font-bold">{value}</div>
+        <h1 className="font-bold text-2xl mb-2 line-clamp-1 break-all">
+          <CountUp preserveValue start={0} end={value} />
+        </h1>
 
-        <p className="text-xs text-muted-foreground text-center">
+        <div className="text-xs text-muted-foreground text-center">
           {diff || diff === 0 ? (
             <div className={`flex flex-col items-center`}>
               <span
                 className={`flex items-center gap-x-2 text-xs font-semibold ${color}`}
               >
-                {diff.toFixed(2)}% {<DirectionIcon className="h-4 w-4" />}
+                {diff.toFixed(1)}%
+                <DirectionIcon className="h-4 w-4" />
               </span>
               <span className={`text-xs text-muted-foreground text-center`}>
-                {diff > 0 ? "increased" : diff === 0 ? "same" : "decreased"}{" "}
-                from previous {whatToCompare}
+                {direction === "increased"
+                  ? "زيادة"
+                  : direction === "decreased"
+                  ? "انخفاض"
+                  : "بقيت"}{" "}
+                عن {CurrentDateNounEngToAr[whatToCompare]} السابق
               </span>
             </div>
           ) : (
-            `No data from previous ${whatToCompare}`
+            `لا يوجد بيانات لهذا ${CurrentDateNounEngToAr[whatToCompare]}`
           )}
-        </p>
+        </div>
       </CardContent>
     </Card>
   );
