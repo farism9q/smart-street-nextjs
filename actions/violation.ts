@@ -87,7 +87,7 @@ export async function getViolationsStats({
   }
 
   if (current === CurrentDate.week) {
-    from = subDays(startOfDay(to), 7);
+    from = startOfWeek(to);
   }
 
   if (current === CurrentDate.day) {

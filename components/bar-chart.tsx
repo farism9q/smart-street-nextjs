@@ -66,7 +66,7 @@ export default function BarChartComponent({
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square w-full max-h-[250px]"
+          className="mx-auto aspect-square w-full max-h-[300px] md:max-h-[250px]"
         >
           <BarChart accessibilityLayer data={generateBarChartData(violations)}>
             <CartesianGrid vertical={false} />
