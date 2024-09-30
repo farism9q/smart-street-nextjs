@@ -2,7 +2,6 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./styles/globals.css";
-import { MiddleContentProvider } from "@/providers/middle-content-provider";
 import { ChatbotProvider } from "@/providers/chatbot-provider";
 import { QueryProviders } from "@/providers/query-client";
 
@@ -28,9 +27,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <MiddleContentProvider>
-              <ChatbotProvider>{children}</ChatbotProvider>
-            </MiddleContentProvider>
+            <ChatbotProvider>{children}</ChatbotProvider>
           </ThemeProvider>
         </QueryProviders>
       </body>
