@@ -25,7 +25,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col px-4">
       <div className={cn("space-y-6 relative", active ? "w-[70%]" : "w-full")}>
-        <div className="fixed bottom-4 right-4 w-[27%]">
+        <div className="fixed bottom-4 right-4 w-[27%] z-50">
           {active ? (
             <Chatbot />
           ) : (
@@ -49,7 +49,7 @@ export default function DashboardPage() {
 
         {!fullScreen && (
           <div className="flex flex-col gap-y-6">
-            <div className="min-h-[500px] max-h-[500px] overflow-hidden rounded-lg">
+            <div className="min-h-[500px] max-h-[500px] overflow-hidden rounded-lg z-0">
               <Map violations={violations} />
             </div>
 

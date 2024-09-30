@@ -12,6 +12,9 @@ import {
   subWeeks,
   subMonths,
   endOfMonth,
+  format,
+  addDays,
+  endOfYear,
 } from "date-fns";
 import { db } from "@/lib/db";
 
@@ -31,8 +34,6 @@ export async function getAllViolation() {
       },
     });
 
-    console.log("I am an agent accessing the database. [getAllViolation]");
-
     return data;
   } catch (error: any) {
     throw new Error("Error fetching violations");
@@ -40,7 +41,9 @@ export async function getAllViolation() {
 }
 
 // This function will be used in the dashboard to display the violations in a specific range
-// Not used in the chatbot
+// ------------------------------
+// Accepts two parameters: from and to of type string
+// Returns all the violations recorded between the two dates
 export async function getAllViolationsInRange({
   from,
   to,
@@ -49,18 +52,17 @@ export async function getAllViolationsInRange({
   to: Date;
 }) {
   try {
+    const fromStr = format(from, "yyyy-MM-dd");
+    const toStr = format(to, "yyyy-MM-dd");
+
     const data = await db.violations.findMany({
       where: {
         date: {
-          gte: from,
-          lte: to,
+          gte: fromStr,
+          lte: toStr,
         },
       },
     });
-
-    console.log(
-      "I am an agent accessing the database. [getAllViolationsInRange]"
-    );
 
     return data;
   } catch (error: any) {
@@ -70,6 +72,9 @@ export async function getAllViolationsInRange({
 
 // This function will return the steet, vehicle and violation value that have the highest number of violations
 // This function will be used to display the statistics in the dashboard (As cards)
+// ------------------------------
+// Accepts one parameter: current of type CurrentDate
+// Returns the street name, vehicle type, and violation type with the highest number of violations
 export async function getViolationsStats({
   current,
 }: {
@@ -87,22 +92,25 @@ export async function getViolationsStats({
   }
 
   if (current === CurrentDate.week) {
-    from = startOfWeek(to);
+    // In Saudi Arabia, Saturday is the first day of the week, but this function assumes that Sunday is the first day of the week
+    // so we need to get the end of the week to be Saturday
+    from = subDays(startOfWeek(new Date()), 1);
   }
 
   if (current === CurrentDate.day) {
     from = startOfDay(to);
   }
 
-  console.log("I am an agent accessing the database. [getViolationStats]");
+  const fromStr = format(from, "yyyy-MM-dd");
+  const toStr = format(to, "yyyy-MM-dd");
 
   // 1- Group by street name
   const streetNameGroup = db.violations.groupBy({
     by: ["street_name"],
     where: {
       date: {
-        gte: from,
-        lte: to,
+        gte: fromStr,
+        lte: toStr,
       },
     },
     _count: {
@@ -125,8 +133,8 @@ export async function getViolationsStats({
     by: ["vehicle_type"],
     where: {
       date: {
-        gte: from,
-        lte: to,
+        gte: fromStr,
+        lte: toStr,
       },
     },
     _count: {
@@ -148,8 +156,8 @@ export async function getViolationsStats({
     by: ["violation_type"],
     where: {
       date: {
-        gte: from,
-        lte: to,
+        gte: fromStr,
+        lte: toStr,
       },
     },
     _count: {
@@ -227,6 +235,10 @@ export async function getViolationsStats({
 // If month is passed, it will compare the current month and previous month
 // If week is passed, it will compare the current week and previous week
 // If year is passed, it will compare the current year and previous year
+// ------------------------------
+// Accepts one parameter: basedOn of type CurrentDate
+// Returns the total number of violations for the current and previous period based on the passed parameter
+// EXAMPLE: If basedOn is CurrentDate.day, it will return the total number of violations for the current day and previous day
 export async function getComparionOfTotalNbViolations({
   basedOn = CurrentDate.day,
 }: {
@@ -240,55 +252,70 @@ export async function getComparionOfTotalNbViolations({
   let previousTo = endOfDay(subDays(new Date(), 1));
 
   if (basedOn === CurrentDate.year) {
+    // From the first day of current year to today
     currentFrom = startOfYear(new Date());
     currentTo = endOfDay(new Date());
 
+    // From the first day of the previous year to the last day of the previous year
     previousFrom = startOfYear(subYears(new Date(), 1));
-    previousTo = endOfDay(subYears(new Date(), 1));
+    previousTo = endOfYear(previousFrom); // Same as endOfDay(endOfYear(subYears(new Date(), 1)))
   }
 
   if (basedOn === CurrentDate.month) {
+    // From the first day of the current month to today
     currentFrom = startOfMonth(new Date());
     currentTo = endOfDay(new Date());
 
+    // From the first day of the previous month to the last day of the previous month
     previousFrom = startOfMonth(subMonths(new Date(), 1));
-    previousTo = endOfDay(subMonths(endOfMonth(currentTo), 1));
+    previousTo = endOfMonth(subMonths(currentTo, 1));
   }
 
   if (basedOn === CurrentDate.week) {
-    currentFrom = startOfWeek(new Date());
+    // In Saudi Arabia Saturday is the first day of the week, but this function assumes that Sunday is the first day of the week
+    // so we need to get the end of the week to be Saturday
+    // Same with the end of the week, Friday is the last day of the week, but this function assumes that Saturday is the last day of the week
+    // so we need to get the end of the week to be Friday
+
+    // From the first day of the current week to today
+    currentFrom = subDays(startOfWeek(new Date()), 1);
     currentTo = endOfDay(new Date());
 
-    previousFrom = startOfWeek(subWeeks(new Date(), 1));
-    previousTo = endOfDay(subWeeks(new Date(), 1));
+    // From the first day of the previous week to the last day of the previous week
+    previousFrom = subDays(startOfWeek(subWeeks(new Date(), 1)), 1);
+    previousTo = addDays(previousFrom, 6);
   }
 
   if (basedOn === CurrentDate.day) {
+    // 30-09 - 30-09
     currentFrom = startOfDay(new Date());
     currentTo = endOfDay(new Date());
 
+    // 29-09 - 29-09
     previousFrom = startOfDay(subDays(new Date(), 1));
     previousTo = endOfDay(subDays(new Date(), 1));
   }
 
-  console.log(
-    "I am an agent accessing the database. [getComparionOfTotalNbViolations]"
-  );
+  const previousFromStr = format(previousFrom, "yyyy-MM-dd");
+  const previousToStr = format(previousTo, "yyyy-MM-dd");
 
   const previous = db.violations.count({
     where: {
       date: {
-        gte: previousFrom,
-        lte: previousTo,
+        gte: previousFromStr,
+        lte: previousToStr,
       },
     },
   });
 
+  const currentFromStr = format(currentFrom, "yyyy-MM-dd");
+  const currentToStr = format(currentTo, "yyyy-MM-dd");
+
   const current = db.violations.count({
     where: {
       date: {
-        gte: currentFrom,
-        lte: currentTo,
+        gte: currentFromStr,
+        lte: currentToStr,
       },
     },
   });
@@ -305,19 +332,23 @@ export async function getComparionOfTotalNbViolations({
 }
 
 // This function will return the total number of violations recorded in the specified year
+// ------------------------------
+// Accepts one parameter: year of type number
+// Returns the total number of violations recorded in the specified year
 export async function getTotalViolationsBasedOnYear(year: number) {
   const from = startOfYear(new Date(year, 0, 1));
   const to = endOfDay(new Date(year, 11, 31));
 
-  console.log(
-    "I am an agent accessing the database. [getTotalViolationsBasedOnYear]"
-  );
+  const fromStr = format(from, "yyyy-MM-dd");
+  const toStr = format(to, "yyyy-MM-dd");
 
   const data = db.violations.count({
     where: {
       date: {
-        gte: from,
-        lte: to,
+        // Current year is 2024, but this function will return 2023-01-01 00:00:00 to 2023-12-31 23:59:59, which means the end of 2023 and are about to start 2024.
+        // But in our case, we only have the date like 2024-01-01, so we need to get the date that are greater than 2023-12-31 23:59:59
+        gt: fromStr,
+        lte: toStr,
       },
     },
   });
@@ -327,20 +358,23 @@ export async function getTotalViolationsBasedOnYear(year: number) {
 
 // This function will return the highest number of violations recorded in a day,
 // along with the street name, vehicle type, and violation type that recorded the highest number of violations
+// ------------------------------
+// Returns the total number of violations recorded in the current year,
+// the highest number of violations recorded in a day, and the stats of the violations in the current year
+// The stats include the street name, vehicle type, and violation type with the highest number of violations
 export async function getSummaryOfCurrentYear() {
   const from = startOfYear(new Date());
   const to = endOfDay(new Date());
 
-  console.log(
-    "I am an agent accessing the database. [getSummaryOfCurrentYear]"
-  );
+  const fromStr = format(from, "yyyy-MM-dd");
+  const toStr = format(to, "yyyy-MM-dd");
 
   const highestViolationsOnDay = db.violations.groupBy({
     by: ["date"],
     where: {
       date: {
-        gte: from,
-        lte: to,
+        gt: fromStr,
+        lte: toStr,
       },
     },
     _count: {
@@ -371,29 +405,4 @@ export async function getSummaryOfCurrentYear() {
       count: highestViolatedDay[0]._count.date,
     },
   };
-}
-
-// This function will return the year, month, and day with the highest number of violations from all the recorded violations
-// So not only the current year, but all the years
-export async function getHighestViolationsYearMonthDay() {
-  console.log(
-    "I am an agent accessing the database. [getHighestViolationsYearMonthDay]"
-  );
-
-  const data = await db.violations.groupBy({
-    by: ["date"],
-    _count: {
-      date: true,
-    },
-    orderBy: {
-      _count: {
-        date: "desc",
-      },
-    },
-    _max: {
-      date: true,
-    },
-  });
-
-  return data;
 }

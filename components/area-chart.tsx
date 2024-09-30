@@ -19,14 +19,13 @@ import {
 } from "@/components/ui/chart";
 
 import { violations as ViolationType } from "@prisma/client";
-import { getDateString } from "@/lib/utils";
 
 // This function will be used to generate the data for the area chart
 function generateAreaChartDate(violations: ViolationType[]) {
   const vehicleCountsByDate: Record<string, Record<string, number>> = {};
 
   violations.forEach(violation => {
-    const date = getDateString(violation.date);
+    const date = violation.date;
 
     if (!vehicleCountsByDate[date]) {
       vehicleCountsByDate[date] = { car: 0, truck: 0, bus: 0 };

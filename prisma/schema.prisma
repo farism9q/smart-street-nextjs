@@ -7,18 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model violations {
-  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
-  /// Multiple data types found: Int: 77.3%, BigInt: 22.7% out of 44 sampled entries
-  v                    Json     @map("__v")
-  date                 DateTime @db.Date
+  id                   String @id @default(auto()) @map("_id") @db.ObjectId
+  date                 String
   latitude             Float
-  license_plate_number String
+  /// Multiple data types found: String: 35.1%, Float: 64.9% out of 74 sampled entries
+  license_plate_number Json
   longitude            Float
   street_name          String
   time                 String
   vehicle_type         String
   violation_type       String
-  zip_code             String
+
+  @@map("Violations-1")
 }

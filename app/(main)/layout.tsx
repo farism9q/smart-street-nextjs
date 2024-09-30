@@ -1,7 +1,6 @@
 "use client";
 
 import { ModeToggle } from "@/components/theme-toggle";
-import { useData } from "@/hooks/use-data";
 import { useChatbot } from "@/providers/chatbot-provider";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {

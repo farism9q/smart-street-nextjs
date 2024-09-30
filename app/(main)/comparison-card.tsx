@@ -3,18 +3,19 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import CountUp from "react-countup";
 
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
-import { formatPercentage } from "@/lib/utils";
 
 type ComparisonCardProps = {
   title: string;
-  value: number;
+  currentValue: number;
+  previousValue: number;
   diff: number | null | undefined;
   whatToCompare: CurrentDate;
 };
 
 export const ComparisonCard = ({
   title,
-  value,
+  currentValue,
+  previousValue,
   whatToCompare,
   diff,
 }: ComparisonCardProps) => {
@@ -52,7 +53,7 @@ export const ComparisonCard = ({
         </CardTitle>
 
         <h1 className="font-bold text-2xl mb-2 line-clamp-1 break-all">
-          <CountUp preserveValue start={0} end={value} />
+          <CountUp preserveValue start={0} end={currentValue} />
         </h1>
 
         <div className="text-xs text-muted-foreground text-center">
@@ -70,7 +71,8 @@ export const ComparisonCard = ({
                   : direction === "decreased"
                   ? "انخفاض"
                   : "بقيت"}{" "}
-                عن {CurrentDateNounEngToAr[whatToCompare]} السابق
+                عن الـ {CurrentDateNounEngToAr[whatToCompare]} السابق (
+                <CountUp preserveValue start={0} end={previousValue} />)
               </span>
             </div>
           ) : (
