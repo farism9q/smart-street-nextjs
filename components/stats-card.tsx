@@ -65,7 +65,7 @@ export default function StatsCard({
           </Carousel>
 
           <div className="text-xs text-center text-muted-foreground h-6 py-2">
-            No data
+            لا يوجد بيانات
           </div>
         </CardContent>
       </Card>

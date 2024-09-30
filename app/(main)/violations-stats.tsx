@@ -39,10 +39,14 @@ export const StatsCards = () => {
   let comparisonDiff = null;
 
   if (comparisonData) {
-    comparisonDiff =
-      ((comparisonData.current - comparisonData.previous) /
-        comparisonData.previous) *
-      100;
+    // prevous value might be 0 (in case there is no previous data), so we need to handle that
+    const oldValue = comparisonData.previous;
+
+    if (oldValue === 0) {
+      comparisonDiff = 100;
+    } else {
+      comparisonDiff = ((comparisonData.current - oldValue) / oldValue) * 100;
+    }
   }
 
   const { streetName, vehicleType, violationType } = data;
@@ -77,7 +81,8 @@ export const StatsCards = () => {
           ) : (
             <ComparisonCard
               title="اجمالي المخالفات"
-              value={comparisonData?.current || 0}
+              currentValue={comparisonData?.current || 0}
+              previousValue={comparisonData?.previous || 0}
               diff={comparisonDiff}
               whatToCompare={current}
             />

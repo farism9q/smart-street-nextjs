@@ -1,65 +1,17 @@
-import { getEmbedding } from "@/actions/openai";
-import { searchEmbedding } from "@/actions/pinecone";
 import {
   getAllViolation,
   getViolationsStats,
-  getAllViolationsInRange,
   getTotalViolationsBasedOnYear,
   getSummaryOfCurrentYear,
-  getHighestViolationsYearMonthDay,
+  getAllViolationsInRange,
 } from "@/actions/violation";
-import { Metadata } from "@/types/pinecone-record";
 import { CurrentDate } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
-import {
-  streamText,
-  convertToCoreMessages,
-  CoreMessage,
-  tool,
-  generateText,
-} from "ai";
-import { formatDate, parseISO } from "date-fns";
+import { streamText, convertToCoreMessages, CoreMessage, tool } from "ai";
 import { z } from "zod";
 
 // Allow streaming responses up to 60 seconds
 export const maxDuration = 60;
-
-function prepareQuestionToGPT(query: string, metadata: Metadata[]) {
-  const infos = metadata
-    .map(
-      data =>
-        `
-          day: ${data.day}
-          is weekend: ${data.isWeekend}
-          latitude: ${data.latitude}
-          longitude: ${data.longitude}
-          month: ${data.month}
-          street name: ${data.street_name}
-          time: ${data.time}
-          vehicle type: ${data.vehicle_type}
-          violation type: ${data.violation_type}
-        `
-    )
-    .join("\n");
-
-  return `
-  Query: ${query}
-
-  Answer based on below information: ${infos}
-  `;
-}
-
-async function getRelevantInformation(query: string) {
-  const embeddings = await getEmbedding(query);
-
-  const { matches } = await searchEmbedding(embeddings);
-
-  const metadata = matches
-    .map(data => data.metadata)
-    .filter(Boolean) as Metadata[];
-
-  return prepareQuestionToGPT(query, metadata);
-}
 
 export async function POST(req: Request) {
   try {
@@ -96,12 +48,6 @@ export async function POST(req: Request) {
             }),
         }),
 
-        getHighestViolationsYearMonthDay: tool({
-          description: `Retrieve the time period (year, month, or day) with the highest number of recorded violations.
-          This tool will return the year, month, and day with the highest number of violations.`,
-          parameters: z.object({}),
-          execute: () => getHighestViolationsYearMonthDay(),
-        }),
         getTotalViolationsBasedOnYear: tool({
           description:
             "Get the total number of violations recorded in the specified year.",
@@ -116,6 +62,20 @@ export async function POST(req: Request) {
             "Get the total number of violations recorded in the current year, highest number of violations based on street, vehicle, violation type, and the day.",
           parameters: z.object({}),
           execute: () => getSummaryOfCurrentYear(),
+        }),
+
+        getViolationsInRange: tool({
+          description:
+            "Use this tool to get all violations recorded in the specified range.",
+          parameters: z.object({
+            from: z.string(),
+            to: z.string(),
+          }),
+          execute: ({ from, to }) =>
+            getAllViolationsInRange({
+              from: new Date(from),
+              to: new Date(to),
+            }),
         }),
 
         getAllViolations: tool({
