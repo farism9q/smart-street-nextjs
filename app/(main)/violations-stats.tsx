@@ -42,7 +42,7 @@ export const StatsCards = () => {
     // prevous value might be 0 (in case there is no previous data), so we need to handle that
     const oldValue = comparisonData.previous;
 
-    if (oldValue === 0) {
+    if (oldValue === 0 && comparisonData.current !== 0) {
       comparisonDiff = 100;
     } else {
       comparisonDiff = ((comparisonData.current - oldValue) / oldValue) * 100;
