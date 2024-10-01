@@ -4,10 +4,12 @@ import {
   getTotalViolationsBasedOnYear,
   getSummaryOfCurrentYear,
   getAllViolationsInRange,
+  getViolationsBasedOnInterval,
 } from "@/actions/violation";
-import { CurrentDate } from "@/types/violation";
+import { CurrentDate, Interval } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
 import { streamText, convertToCoreMessages, CoreMessage, tool } from "ai";
+import { endOfYear, startOfYear } from "date-fns";
 import { z } from "zod";
 
 // Allow streaming responses up to 60 seconds
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
       system: `You are a helpful assistant. Use the provided tools to answer the user's questions.
       Here is the user's question: ${userQuery}.
       If the information cannot be found in the tools, respond with "Sorry, I don't know."`,
-      maxSteps: 5,
+      maxSteps: 10,
       tools: {
         getViolationsStats: tool({
           description:
@@ -76,6 +78,37 @@ export async function POST(req: Request) {
               from: new Date(from),
               to: new Date(to),
             }),
+        }),
+
+        getHiestIntervalViolations: tool({
+          description: `Get the highest number of violations recorded in the specified interval. If no range is specified, set ${startOfYear(
+            new Date()
+          )} to the current date and ${endOfYear(
+            new Date()
+          )} to the current date. Output the date range.`,
+          parameters: z.object({
+            basedOn: z.enum([
+              Interval.hourly,
+              Interval.daily,
+              Interval.monthly,
+              Interval.yearly,
+            ]),
+            from: z.string(),
+            to: z.string(),
+          }),
+          execute: ({ basedOn, from, to }) => {
+            const fromRange = from ? new Date(from) : new Date();
+            const toRange = to ? new Date(to) : new Date();
+
+            console.log("fromRange - toRange");
+            console.log(fromRange, toRange);
+
+            return getViolationsBasedOnInterval({
+              basedOn,
+              from: fromRange || new Date(),
+              to: toRange || new Date(),
+            });
+          },
         }),
 
         getAllViolations: tool({

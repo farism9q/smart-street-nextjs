@@ -18,48 +18,55 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { violations as ViolationType } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 // This function will be used to generate the data for the area chart
-function generateAreaChartDate(violations: ViolationType[]) {
-  const vehicleCountsByDate: Record<string, Record<string, number>> = {};
+function generateAreaChartDate(violations: Prisma.violationsGetPayload<any>[]) {
+  const violationCountsByDate: Record<string, Record<string, number>> = {};
 
   violations.forEach(violation => {
     const date = violation.date;
+    const violationType = violation.violation_type
+      .replaceAll(" ", "")
+      .toLowerCase();
 
-    if (!vehicleCountsByDate[date]) {
-      vehicleCountsByDate[date] = { car: 0, truck: 0, bus: 0 };
+    if (!violationCountsByDate[date]) {
+      violationCountsByDate[date] = {
+        overtakingfromleft: 0,
+        overtakingfromright: 0,
+      };
     }
-    vehicleCountsByDate[date][
-      violation.vehicle_type as "car" | "bus" | "truck"
-    ]++;
+    violationCountsByDate[date][violationType]++;
   });
 
-  return Object.entries(vehicleCountsByDate).map(([date, counts]) => ({
+  return Object.entries(violationCountsByDate).map(([date, counts]) => ({
     date,
     ...counts,
   }));
 }
 
 const chartConfig = {
-  car: {
-    label: "Car",
+  numberOfViolations: {
+    label: "عدد المخالفات",
+  },
+  overtakingfromleft: {
+    label: "التجاوز من اليسار",
     color: "hsl(var(--chart-1))",
   },
-  bus: {
-    label: "Bus",
+  overtakingfromright: {
+    label: "التجاوز من اليمين",
     color: "hsl(var(--chart-3))",
-  },
-  truck: {
-    label: "Truck",
-    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
 export default function AreaChartComponent({
   violations,
+  from,
+  to,
 }: {
-  violations: ViolationType[];
+  violations: Prisma.violationsGetPayload<any>[];
+  from: Date;
+  to: Date;
 }) {
   const data = generateAreaChartDate(violations) as any;
 
@@ -67,56 +74,78 @@ export default function AreaChartComponent({
 
   return (
     <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+      <CardHeader className="flex items-center md:items-end gap-2 py-4">
+        <div className="flex flex-1 flex-col justify-center gap-1 py-5 sm:py-6">
           <CardTitle className="font-medium pb-4">
-            المخالفات حسب نوع المركبة
+            المخالفات حسب نوع المخالفة
           </CardTitle>
-          <CardDescription>
-            جميع المخالفات المسجلة حسب نوع المركبة
-          </CardDescription>
         </div>
+        <CardDescription>
+          جميع المخالفات المسجلة حسب نوع المخالفة من{" "}
+          <strong>
+            {from.toLocaleDateString("ar-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </strong>{" "}
+          إلى{" "}
+          <strong>
+            {to.toLocaleDateString("ar-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </strong>
+        </CardDescription>
       </CardHeader>
+
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={data}>
+          <AreaChart
+            data={data}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+          >
             <defs>
-              <linearGradient id="fillCar" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id="fillOvertakingfromleft"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop
                   offset="5%"
-                  stopColor="var(--color-car)"
+                  stopColor="var(--color-overtakingfromleft)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-car)"
+                  stopColor="var(--color-overtakingfromleft)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id="fillBus" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id="fillOvertakingfromright"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop
                   offset="5%"
-                  stopColor="var(--color-bus)"
+                  stopColor="var(--color-overtakingfromright)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-bus)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillTruck" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-truck)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-truck)"
+                  stopColor="var(--color-overtakingfromright)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -152,24 +181,17 @@ export default function AreaChartComponent({
               }
             />
             <Area
-              dataKey="car"
+              dataKey="overtakingfromleft"
               type="natural"
-              fill="url(#fillCar)"
-              stroke="var(--color-car)"
+              fill="url(#fillOvertakingfromleft)"
+              stroke="var(--color-overtakingfromleft)"
               stackId="a"
             />
             <Area
-              dataKey="bus"
+              dataKey="overtakingfromright"
               type="natural"
-              fill="url(#fillBus)"
-              stroke="var(--color-bus)"
-              stackId="a"
-            />
-            <Area
-              dataKey="truck"
-              type="natural"
-              fill="url(#fillTruck)"
-              stroke="var(--color-truck)"
+              fill="url(#fillOvertakingfromright)"
+              stroke="var(--color-overtakingfromright)"
               stackId="a"
             />
 

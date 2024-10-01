@@ -14,10 +14,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import BarChartComponent from "@/components/bar-chart";
-import LineChartComponent from "@/components/line-chart";
 import AreaChartComponent from "@/components/area-chart";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetViolationsInterval } from "@/hooks/use-get-violations-interval";
+import { Interval } from "@/types/violation";
+import { LineChartTimeInterval } from "@/components/line-chart-time-interval";
 
 type ChartProps = {
   className?: string;
@@ -38,7 +40,14 @@ export function Charts({ className }: ChartProps) {
     to,
   });
 
-  if (isLoading) {
+  const { data: violationsInterval, isLoading: isLoadingInterval } =
+    useGetViolationsInterval({
+      basedOn: Interval.hourly,
+      from,
+      to,
+    });
+
+  if (isLoading || isLoadingInterval) {
     <SkeletonLoading />;
   }
 
@@ -72,7 +81,7 @@ export function Charts({ className }: ChartProps) {
                     format(date.from, "LLL dd, y")
                   )
                 ) : (
-                  <span>Pick a date</span>
+                  <span>اختر تاريخ</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -87,7 +96,22 @@ export function Charts({ className }: ChartProps) {
             </PopoverContent>
           </Popover>
           <p className="text-muted-foreground text-sm">
-            {format(from, "LLL iii, y")} - {format(to, "LLL iii, y")}
+            من{" "}
+            <strong>
+              {from.toLocaleDateString("ar-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </strong>{" "}
+            إلى{" "}
+            <strong>
+              {to.toLocaleDateString("ar-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </strong>
           </p>
         </div>
       </div>
@@ -96,8 +120,8 @@ export function Charts({ className }: ChartProps) {
         <>
           <BarChartComponent violations={violations} />
 
-          <LineChartComponent violations={violations} />
-          <AreaChartComponent violations={violations} />
+          <LineChartTimeInterval from={from} to={to} />
+          <AreaChartComponent from={from} to={to} violations={violations} />
         </>
       )}
     </div>

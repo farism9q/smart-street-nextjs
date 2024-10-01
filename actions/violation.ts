@@ -1,6 +1,6 @@
 "use server";
 
-import { CurrentDate } from "@/types/violation";
+import { CurrentDate, Interval } from "@/types/violation";
 import {
   startOfDay,
   startOfMonth,
@@ -404,5 +404,128 @@ export async function getSummaryOfCurrentYear() {
       day: highestViolatedDay[0]._max.date,
       count: highestViolatedDay[0]._count.date,
     },
+  };
+}
+
+// This function will return the total number of violations recorded in the specified interval (hourly, daily, monthly, yearly)
+// ------------------------------
+// Accepts three parameters: from, to, and basedOn.
+// BasedOn is of type Interval and can be hourly, daily, monthly, or yearly
+// Returns the total number of violations recorded in the specified interval
+// EXAMPLE: If basedOn is Interval.daily, it will return the total number of violations recorded in each day between the specified dates (from, to)
+export async function getViolationsBasedOnInterval({
+  from,
+  to,
+  basedOn,
+}: {
+  from: Date;
+  to: Date;
+  basedOn: Interval;
+}) {
+  const fromStr = format(from, "yyyy-MM-dd");
+  const toStr = format(to, "yyyy-MM-dd");
+  
+  const pipelineObj: any = {};
+
+  // hourly
+  if (basedOn === Interval.hourly) {
+    pipelineObj.addFields = {
+      hour: {
+        $toInt: {
+          $arrayElemAt: [{ $split: ["$time", ":"] }, 0],
+        },
+      },
+    };
+    pipelineObj.group = {
+      _id: "$hour",
+      count: { $sum: 1 },
+    };
+  }
+  // daily
+  if (basedOn === Interval.daily) {
+    pipelineObj.addFields = {
+      day: {
+        $dateFromString: {
+          dateString: "$date",
+        },
+      },
+    };
+    pipelineObj.group = {
+      _id: {
+        $dateToString: {
+          format: "%d",
+          date: "$day",
+        },
+      },
+      count: { $sum: 1 },
+    };
+  }
+  // monthly
+  if (basedOn === Interval.monthly) {
+    pipelineObj.addFields = {
+      month: {
+        $dateFromString: {
+          dateString: "$date",
+        },
+      },
+    };
+    pipelineObj.group = {
+      _id: {
+        $dateToString: {
+          format: "%m",
+          date: "$month",
+        },
+      },
+      count: { $sum: 1 },
+    };
+  }
+  // yearly
+  if (basedOn === Interval.yearly) {
+    pipelineObj.addFields = {
+      year: {
+        $dateFromString: {
+          dateString: "$date",
+        },
+      },
+    };
+    pipelineObj.group = {
+      _id: {
+        $dateToString: {
+          format: "%Y",
+          date: "$year",
+        },
+      },
+      count: { $sum: 1 },
+    };
+  }
+
+  const result = await db.violations.aggregateRaw({
+    pipeline: [
+      {
+        $match: {
+          date: {
+            $gte: fromStr,
+            $lte: toStr,
+          },
+        },
+      },
+
+      {
+        $addFields: pipelineObj.addFields,
+      },
+      {
+        $group: pipelineObj.group,
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ],
+  });
+
+  return {
+    result,
+    from,
+    to,
+    basedOn,
   };
 }
