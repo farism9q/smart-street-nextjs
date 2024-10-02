@@ -1,7 +1,30 @@
-import { db } from "@/lib/db";
+import {
+  getTotalViolationsBasedOnYear,
+  getViolationsBasedOnInterval,
+} from "@/actions/violation";
+
 import { Interval } from "@/types/violation";
-import { format } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  try {
+    const year = request.nextUrl.searchParams.get("year");
+
+    if (!year) {
+      return new NextResponse("Invalid Request. Provide year", {
+        status: 400,
+      });
+    }
+
+    const data = await getTotalViolationsBasedOnYear(parseInt(year));
+
+    return new NextResponse(JSON.stringify({ data }), { status: 200 });
+  } catch (error: any) {
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
+
+// -----------------------
 
 // EXAMPLE OF THE RESPONSE
 /* {
@@ -17,122 +40,48 @@ import { NextRequest, NextResponse } from "next/server";
   "to": "2024-09-31"
 } */
 
-export async function POST(request: NextRequest, response: NextResponse) {
-  // Default value is "hourly"
-  const basedOn = request.nextUrl.searchParams.get("basedOn") as Interval;
+export async function POST(request: NextRequest) {
+  try {
+    // Default value is "hourly"
+    const basedOn = request.nextUrl.searchParams.get("basedOn") as Interval;
 
-  const body = await request.json();
+    if (!basedOn || !Object.values(Interval).includes(basedOn as Interval)) {
+      return new NextResponse(
+        "Invalid Request. Based on what ? [weekly, monthly]",
+        {
+          status: 400,
+        }
+      );
+    }
 
-  const from = body.from as Date;
-  const to = body.to as Date;
+    const body = await request.json();
 
-  if (!from || !to) {
+    const from = body.from as Date;
+    const to = body.to as Date;
+
+    if (!from || !to) {
+      return new NextResponse(
+        JSON.stringify({
+          message:
+            "There is no date range. Please provide them to get expected response",
+        }),
+        { status: 400 }
+      );
+    }
+
+    const data = await getViolationsBasedOnInterval({
+      basedOn,
+      from,
+      to,
+    });
+
     return new NextResponse(
       JSON.stringify({
-        message:
-          "There is no date range. Please provide them to get expected response",
+        data,
       }),
-      { status: 400 }
+      { status: 200 }
     );
+  } catch (error: any) {
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
-
-  const fromStr = format(from, "yyyy-MM-dd");
-  const toStr = format(to, "yyyy-MM-dd");
-
-  const pipelineObj: any = {};
-  if (basedOn === Interval.hourly) {
-    pipelineObj.addFields = {
-      hour: {
-        $toInt: {
-          $arrayElemAt: [{ $split: ["$time", ":"] }, 0],
-        },
-      },
-    };
-    pipelineObj.group = {
-      _id: "$hour",
-      count: { $sum: 1 },
-    };
-  }
-  if (basedOn === Interval.daily) {
-    pipelineObj.addFields = {
-      day: {
-        $dateFromString: {
-          dateString: "$date",
-        },
-      },
-    };
-    pipelineObj.group = {
-      _id: {
-        $dateToString: {
-          format: "%d",
-          date: "$day",
-        },
-      },
-      count: { $sum: 1 },
-    };
-  }
-  if (basedOn === Interval.monthly) {
-    pipelineObj.addFields = {
-      month: {
-        $dateFromString: {
-          dateString: "$date",
-        },
-      },
-    };
-    pipelineObj.group = {
-      _id: {
-        $dateToString: {
-          format: "%m",
-          date: "$month",
-        },
-      },
-      count: { $sum: 1 },
-    };
-  }
-  if (basedOn === Interval.yearly) {
-    pipelineObj.addFields = {
-      year: {
-        $dateFromString: {
-          dateString: "$date",
-        },
-      },
-    };
-    pipelineObj.group = {
-      _id: {
-        $dateToString: {
-          format: "%Y",
-          date: "$year",
-        },
-      },
-      count: { $sum: 1 },
-    };
-  }
-
-  const result = await db.violations.aggregateRaw({
-    pipeline: [
-      {
-        $match: {
-          date: {
-            $gte: fromStr,
-            $lte: toStr,
-          },
-        },
-      },
-      {
-        $addFields: pipelineObj.addFields,
-      },
-      {
-        $group: pipelineObj.group,
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ],
-  });
-
-  console.log(result);
-
-  return new NextResponse(JSON.stringify({ result, basedOn, from, to }), {
-    status: 200,
-  });
 }

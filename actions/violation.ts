@@ -345,9 +345,7 @@ export async function getTotalViolationsBasedOnYear(year: number) {
   const data = db.violations.count({
     where: {
       date: {
-        // Current year is 2024, but this function will return 2023-01-01 00:00:00 to 2023-12-31 23:59:59, which means the end of 2023 and are about to start 2024.
-        // But in our case, we only have the date like 2024-01-01, so we need to get the date that are greater than 2023-12-31 23:59:59
-        gt: fromStr,
+        gte: fromStr,
         lte: toStr,
       },
     },
@@ -424,7 +422,7 @@ export async function getViolationsBasedOnInterval({
 }) {
   const fromStr = format(from, "yyyy-MM-dd");
   const toStr = format(to, "yyyy-MM-dd");
-  
+
   const pipelineObj: any = {};
 
   // hourly
