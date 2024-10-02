@@ -24,22 +24,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// -----------------------
-
-// EXAMPLE OF THE RESPONSE
-/* {
-  "result": [
-    {
-      _id: "01",
-      count: 1
-    }, 
-    .....
-  ],
-  "basedOn": "hourly",
-  "from": "2024-08-01",
-  "to": "2024-09-31"
-} */
-
 export async function POST(request: NextRequest) {
   try {
     // Default value is "hourly"
@@ -85,3 +69,17 @@ export async function POST(request: NextRequest) {
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
+
+// EXAMPLE OF THE RESPONSE
+/* {
+  "result": [
+    {
+      _id: "01",
+      count: 1
+    }, 
+    .....
+  ],
+  "basedOn": "hourly",
+  "from": "2024-08-01",
+  "to": "2024-09-31"
+} */
