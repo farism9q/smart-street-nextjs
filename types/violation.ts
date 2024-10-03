@@ -33,6 +33,23 @@ export enum CurrentDate {
   year = "yearly",
 }
 
+// This is about the interval of the current date (hourly, daily, monthly, yearly)
+// Will be used when we fetch data from a range of dates and we can get the data based on the interval
+// Ex: If we need the hours where the violations happened, we can use the interval as "hourly"
+export enum Interval {
+  hourly = "hourly",
+  daily = "daily",
+  monthly = "monthly",
+  yearly = "yearly",
+}
+
+export const IntervalEngToAr = {
+  [Interval.hourly]: "ساعات",
+  [Interval.daily]: "أيام",
+  [Interval.monthly]: "شهور",
+  [Interval.yearly]: "سنوات",
+} as { [key in Interval]: string };
+
 export const CurrentDateNounEngToAr = {
   [CurrentDate.day]: "اليوم",
   [CurrentDate.week]: "الأسبوع",
@@ -46,3 +63,14 @@ export const CurrentDateAdjEngToAr = {
   [CurrentDate.month]: "شهري",
   [CurrentDate.year]: "سنوي",
 } as { [key in CurrentDate]: string };
+
+export const ViolationType = {
+  overtakingfromleft: {
+    en: "Overtaking From Left",
+    ar: "التجاوز من اليسار",
+  },
+  overtakingfromright: {
+    en: "Overtaking From Right",
+    ar: "التجاوز من اليمين",
+  },
+};

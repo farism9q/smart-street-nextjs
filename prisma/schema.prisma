@@ -9,15 +9,18 @@ datasource db {
 
 model violations {
   id                   String @id @default(auto()) @map("_id") @db.ObjectId
+  /// Multiple data types found: Int: 68.3%, BigInt: 31.7% out of 63 sampled entries
+  v                    Json   @map("__v")
   date                 String
   latitude             Float
-  /// Multiple data types found: String: 35.1%, Float: 64.9% out of 74 sampled entries
-  license_plate_number Json
+  license_plate_number String
   longitude            Float
   street_name          String
   time                 String
   vehicle_type         String
   violation_type       String
+  zip_code             String
 
-  @@map("Violations-1")
+  @@map("Violations")
 }
+

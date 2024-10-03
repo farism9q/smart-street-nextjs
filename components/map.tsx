@@ -94,7 +94,13 @@ export default function Map({ violations }: MapProps) {
           zoom={12}
           scrollWheelZoom={false}
         >
-          <Suspense>
+          <Suspense
+            fallback={
+              <div className="w-full h-full flex items-center justify-center">
+                <p className="text-lg font-bold">Loading...</p>
+              </div>
+            }
+          >
             <LayersControl>
               <LayersControl.Overlay name="Markers" checked>
                 <FeatureGroup>

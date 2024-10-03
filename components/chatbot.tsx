@@ -170,29 +170,28 @@ export function Chatbot() {
       </ScrollArea>
 
       {/* Quick questions */}
-      {(messages.length === 0 || true) && (
-        <div className="w-full min-h-12 overflow-hidden">
-          <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-            <div className="flex">
-              {Object.values(QUICK_QUESTIONS).map(question => (
-                <button
-                  key={question}
-                  className="lowercase text-sm p-3 bg-zinc-500 text-white bg-opacity-20 hover:bg-opacity-40 transition-colors rounded-md
+
+      <div className="w-full min-h-12 overflow-hidden">
+        <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+          <div className="flex">
+            {Object.values(QUICK_QUESTIONS).map(question => (
+              <button
+                key={question}
+                className="lowercase text-sm p-3 bg-zinc-500 text-white bg-opacity-20 hover:bg-opacity-40 transition-colors rounded-md
                 
                 "
-                  type="button"
-                  onClick={() => {
-                    setInput(question);
-                  }}
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-            <ScrollBar className="hidden" orientation="horizontal" />
-          </ScrollArea>
-        </div>
-      )}
+                type="button"
+                onClick={() => {
+                  setInput(question);
+                }}
+              >
+                {question}
+              </button>
+            ))}
+          </div>
+          <ScrollBar className="hidden" orientation="horizontal" />
+        </ScrollArea>
+      </div>
       <form
         onSubmit={e => {
           e.preventDefault();

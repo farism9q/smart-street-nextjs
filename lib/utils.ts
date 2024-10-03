@@ -1,3 +1,4 @@
+import { Interval } from "@/types/violation";
 import { clsx, type ClassValue } from "clsx";
 import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
@@ -42,4 +43,38 @@ export const formatNumber = (value: number) => {
   const result = new Intl.NumberFormat("ar-SA").format(value);
 
   return Number(result);
+};
+
+export const formatInteval = ({
+  value,
+  interval,
+}: {
+  value: number;
+  interval: Interval;
+}) => {
+  // Hourly
+  if (interval === Interval.hourly) {
+    // Bigger than 12 is PM
+    return value > 12 ? `${value - 12} PM` : `${value} AM`;
+  }
+
+  // Daily
+  if (interval === Interval.daily) {
+    return `يوم ${value}`;
+  }
+
+  // Monthly
+  if (interval === Interval.monthly) {
+    // I needed to create a new date of type "Date" to get the full year
+    // and then use the "toLocaleDateString" method to get the month in Arabic
+    const date = new Date(2024, value - 1, 1);
+    return `شهر ${value} (${date.toLocaleDateString("ar-US", {
+      month: "short",
+    })})`;
+  }
+
+  // Yearly
+  if (interval === Interval.yearly) {
+    return `سنة ${value}`;
+  }
 };
