@@ -18,6 +18,7 @@ export function useGetViolationsInterval({
         basedOn,
         from,
         to,
+        dateFromFrontend: true,
       });
 
       if (data instanceof Error) {

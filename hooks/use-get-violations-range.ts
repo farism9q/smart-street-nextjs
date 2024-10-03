@@ -5,8 +5,8 @@ export function useGetAllViolationsInRange({
   from,
   to,
 }: {
-  from: Date;
-  to: Date;
+  from: Date | string;
+  to: Date | string;
 }) {
   const { data, isLoading, isPending, error } = useQuery({
     queryKey: ["violations", from, to],
@@ -14,6 +14,7 @@ export function useGetAllViolationsInRange({
       const violations = await getAllViolationsInRange({
         from,
         to,
+        dateFromFrontend: true,
       });
 
       if (violations instanceof Error) {

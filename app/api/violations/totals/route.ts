@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
       basedOn,
       from,
       to,
+      dateFromFrontend: false,
     });
 
     return new NextResponse(

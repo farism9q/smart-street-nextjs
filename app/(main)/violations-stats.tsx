@@ -22,6 +22,9 @@ export const StatsCards = () => {
       current,
     });
 
+  console.log("comparisonData");
+  console.log(comparisonData);
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-4">

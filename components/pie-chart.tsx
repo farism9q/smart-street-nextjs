@@ -23,6 +23,7 @@ import {
 } from "@/types/violation";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import {
+  endOfDay,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -31,6 +32,7 @@ import {
 } from "date-fns";
 import { Skeleton } from "./ui/skeleton";
 import { Prisma } from "@prisma/client";
+import { formatDate } from "@/lib/utils";
 
 function generatePieChartData(violations: Prisma.violationsGetPayload<any>[]) {
   if (violations.length === 0) {
@@ -79,23 +81,29 @@ export default function PieChartComponent({
   basedOn: CurrentDate;
 }) {
   const { from, to } = useMemo(() => {
-    let from: Date;
-    let to: Date;
+    let from: Date | string;
+    let to: Date | string;
 
     if (basedOn === CurrentDate.year) {
-      from = startOfYear(new Date());
+      from = startOfYear(formatDate(new Date()));
+      to = endOfDay(formatDate(new Date()));
     } else if (basedOn === CurrentDate.month) {
-      from = startOfMonth(new Date());
+      from = startOfMonth(formatDate(new Date()));
+      to = endOfDay(formatDate(new Date()));
     } else if (basedOn === CurrentDate.week) {
-      from = subDays(startOfWeek(new Date()), 1);
+      from = subDays(startOfWeek(formatDate(new Date())), 1);
+      to = endOfDay(formatDate(new Date()));
     } else {
-      from = startOfDay(new Date());
+      from = startOfDay(formatDate(new Date()));
+      to = endOfDay(formatDate(new Date()));
     }
-
-    to = new Date();
 
     return { from, to };
   }, [basedOn]);
+
+  console.log("basedOn", basedOn);
+  console.log(from);
+  console.log(to);
 
   const {
     data: violations,
@@ -105,6 +113,8 @@ export default function PieChartComponent({
     from,
     to,
   });
+
+  console.log(violations);
 
   if (isLoading) {
     return <SkeletonLoading />;

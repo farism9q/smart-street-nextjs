@@ -78,3 +78,8 @@ export const formatInteval = ({
     return `سنة ${value}`;
   }
 };
+
+export const formatDate = (date: Date) => {
+  return format(date, "yyyy-MM-dd");
+  // return format(new Date(), "yyyy-MM-dd");
+};

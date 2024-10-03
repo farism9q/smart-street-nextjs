@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
     const result = await getAllViolationsInRange({
       from,
       to,
+      dateFromFrontend: false,
     });
 
     return new NextResponse(JSON.stringify(result), { status: 200 });

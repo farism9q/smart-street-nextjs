@@ -17,6 +17,7 @@ import {
   endOfYear,
 } from "date-fns";
 import { db } from "@/lib/db";
+import { formatDate } from "@/lib/utils";
 
 export async function getAllViolation() {
   try {
@@ -47,13 +48,27 @@ export async function getAllViolation() {
 export async function getAllViolationsInRange({
   from,
   to,
+  dateFromFrontend,
 }: {
-  from: Date;
-  to: Date;
+  from: Date | string;
+  to: Date | string;
+  dateFromFrontend: boolean;
 }) {
   try {
+    if (dateFromFrontend) {
+      // Date sent from the frontend are one day behind, so we need to add one day to the to date
+      // But in the backend, the date is correct.
+      from = addDays(new Date(from), 1);
+      to = addDays(new Date(to), 1);
+    }
+
     const fromStr = format(from, "yyyy-MM-dd");
     const toStr = format(to, "yyyy-MM-dd");
+
+    console.log("Pie chart fromStr");
+    console.log(fromStr);
+    console.log("Pie chart toStr");
+    console.log(toStr);
 
     const data = await db.violations.findMany({
       where: {
@@ -63,6 +78,9 @@ export async function getAllViolationsInRange({
         },
       },
     });
+
+    console.log("Pie chart data");
+    console.log(data);
 
     return data;
   } catch (error: any) {
@@ -80,7 +98,7 @@ export async function getViolationsStats({
 }: {
   current: CurrentDate;
 }) {
-  const to = new Date();
+  const to = formatDate(new Date());
   let from = startOfDay(to);
 
   if (current === CurrentDate.year) {
@@ -94,7 +112,7 @@ export async function getViolationsStats({
   if (current === CurrentDate.week) {
     // In Saudi Arabia, Saturday is the first day of the week, but this function assumes that Sunday is the first day of the week
     // so we need to get the end of the week to be Saturday
-    from = subDays(startOfWeek(new Date()), 1);
+    from = subDays(startOfWeek(formatDate(new Date())), 1);
   }
 
   if (current === CurrentDate.day) {
@@ -245,30 +263,34 @@ export async function getComparionOfTotalNbViolations({
   basedOn: CurrentDate;
 }) {
   // DEFAULT
-  let currentFrom = startOfDay(new Date());
-  let currentTo = endOfDay(new Date());
+  let currentFrom = startOfDay(formatDate(new Date()));
+  let currentTo = endOfDay(formatDate(new Date()));
 
-  let previousFrom = startOfDay(subDays(new Date(), 1));
-  let previousTo = endOfDay(subDays(new Date(), 1));
+  let previousFrom = startOfDay(subDays(formatDate(new Date()), 1));
+  let previousTo = endOfDay(subDays(formatDate(new Date()), 1));
 
   if (basedOn === CurrentDate.year) {
     // From the first day of current year to today
-    currentFrom = startOfYear(new Date());
-    currentTo = endOfDay(new Date());
+    // currentFrom = startOfYear(new Date());
+    // currentTo = endOfDay(new Date());
+    currentFrom = startOfYear(formatDate(new Date()));
+    currentTo = endOfDay(formatDate(new Date()));
 
     // From the first day of the previous year to the last day of the previous year
-    previousFrom = startOfYear(subYears(new Date(), 1));
-    previousTo = endOfYear(previousFrom); // Same as endOfDay(endOfYear(subYears(new Date(), 1)))
+    // previousFrom = startOfYear(subYears(new Date(), 1));
+    // previousTo = endOfYear(previousFrom); // Same as endOfDay(endOfYear(subYears(new Date(), 1)))
+    previousFrom = endOfYear(subDays(formatDate(new Date()), 1));
+    previousTo = endOfYear(formatDate(previousFrom)); // Same as endOfDay(endOfYear(subYears(new Date(), 1)))
   }
 
   if (basedOn === CurrentDate.month) {
     // From the first day of the current month to today
-    currentFrom = startOfMonth(new Date());
-    currentTo = endOfDay(new Date());
+    currentFrom = startOfMonth(formatDate(new Date()));
+    currentTo = endOfDay(formatDate(new Date()));
 
     // From the first day of the previous month to the last day of the previous month
-    previousFrom = startOfMonth(subMonths(new Date(), 1));
-    previousTo = endOfMonth(subMonths(currentTo, 1));
+    previousFrom = startOfMonth(subMonths(formatDate(new Date()), 1));
+    previousTo = endOfMonth(subMonths(formatDate(currentTo), 1));
   }
 
   if (basedOn === CurrentDate.week) {
@@ -278,22 +300,22 @@ export async function getComparionOfTotalNbViolations({
     // so we need to get the end of the week to be Friday
 
     // From the first day of the current week to today
-    currentFrom = subDays(startOfWeek(new Date()), 1);
-    currentTo = endOfDay(new Date());
+    currentFrom = subDays(startOfWeek(formatDate(new Date())), 1);
+    currentTo = endOfDay(formatDate(new Date()));
 
     // From the first day of the previous week to the last day of the previous week
-    previousFrom = subDays(startOfWeek(subWeeks(new Date(), 1)), 1);
+    previousFrom = subDays(startOfWeek(subWeeks(formatDate(new Date()), 1)), 1);
     previousTo = addDays(previousFrom, 6);
   }
 
   if (basedOn === CurrentDate.day) {
     // 30-09 - 30-09
-    currentFrom = startOfDay(new Date());
-    currentTo = endOfDay(new Date());
+    currentFrom = startOfDay(formatDate(new Date()));
+    currentTo = endOfDay(formatDate(new Date()));
 
     // 29-09 - 29-09
-    previousFrom = startOfDay(subDays(new Date(), 1));
-    previousTo = endOfDay(subDays(new Date(), 1));
+    previousFrom = startOfDay(subDays(formatDate(new Date()), 1));
+    previousTo = endOfDay(subDays(formatDate(new Date()), 1));
   }
 
   const previousFromStr = format(previousFrom, "yyyy-MM-dd");
@@ -336,8 +358,8 @@ export async function getComparionOfTotalNbViolations({
 // Accepts one parameter: year of type number
 // Returns the total number of violations recorded in the specified year
 export async function getTotalViolationsBasedOnYear(year: number) {
-  const from = startOfYear(new Date(year, 0, 1));
-  const to = endOfDay(new Date(year, 11, 31));
+  const from = startOfYear(formatDate(new Date(year, 0, 1)));
+  const to = endOfDay(formatDate(new Date(year, 11, 31)));
 
   const fromStr = format(from, "yyyy-MM-dd");
   const toStr = format(to, "yyyy-MM-dd");
@@ -361,8 +383,8 @@ export async function getTotalViolationsBasedOnYear(year: number) {
 // the highest number of violations recorded in a day, and the stats of the violations in the current year
 // The stats include the street name, vehicle type, and violation type with the highest number of violations
 export async function getSummaryOfCurrentYear() {
-  const from = startOfYear(new Date());
-  const to = endOfDay(new Date());
+  const from = startOfYear(formatDate(new Date()));
+  const to = endOfDay(formatDate(new Date()));
 
   const fromStr = format(from, "yyyy-MM-dd");
   const toStr = format(to, "yyyy-MM-dd");
@@ -415,11 +437,20 @@ export async function getViolationsBasedOnInterval({
   from,
   to,
   basedOn,
+  dateFromFrontend,
 }: {
   from: Date;
   to: Date;
   basedOn: Interval;
+  dateFromFrontend: boolean;
 }) {
+  // Date sent from the frontend are one day behind, so we need to add one day to the to date
+  // But in the backend, the date is correct.
+  if (dateFromFrontend) {
+    from = addDays(new Date(from), 1);
+    to = addDays(new Date(to), 1);
+  }
+
   const fromStr = format(from, "yyyy-MM-dd");
   const toStr = format(to, "yyyy-MM-dd");
 

@@ -77,6 +77,7 @@ export async function POST(req: Request) {
             getAllViolationsInRange({
               from: new Date(from),
               to: new Date(to),
+              dateFromFrontend: false,
             }),
         }),
 
@@ -107,6 +108,7 @@ export async function POST(req: Request) {
               basedOn,
               from: fromRange || new Date(),
               to: toRange || new Date(),
+              dateFromFrontend: false,
             });
           },
         }),
