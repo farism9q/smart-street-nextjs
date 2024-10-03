@@ -22,7 +22,13 @@ import {
   ViolationType,
 } from "@/types/violation";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
-import { startOfDay, startOfMonth, startOfWeek, startOfYear } from "date-fns";
+import {
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+} from "date-fns";
 import { Skeleton } from "./ui/skeleton";
 import { Prisma } from "@prisma/client";
 
@@ -81,7 +87,7 @@ export default function PieChartComponent({
     } else if (basedOn === CurrentDate.month) {
       from = startOfMonth(new Date());
     } else if (basedOn === CurrentDate.week) {
-      from = startOfWeek(new Date());
+      from = subDays(startOfWeek(new Date()), 1);
     } else {
       from = startOfDay(new Date());
     }
