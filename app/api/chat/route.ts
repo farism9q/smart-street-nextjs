@@ -32,12 +32,12 @@ export async function POST(req: Request) {
       messages: [...convertToCoreMessages(filteredMessages)],
       system: `You are a helpful assistant. Use the provided tools to answer the user's questions.
       Here is the user's question: ${userQuery}.
-      If the information cannot be found in the tools, respond with "Sorry, I don't know."`,
+      If the information cannot be found in the tools, respond with "لا أعرف"`,
       temperature: 0.5,
       maxSteps: 10,
       tools: {
         getViolationsStats: tool({
-          description: `Retrieve the statistics of the violations recorded based on date. If asked of current year, month, week, or day, just use 'current' (only) as parameter. If asked of a specific year, month, week, or day, set the year, month, week, or day as parameter.`,
+          description: `Retrieve the total violations, summary of violations, and highest violations on day recorded based on date. If asked of current year, month, week, or day, just use 'current' (only) as parameter. If asked of a specific year, month, week, or day, set the year, month, week, or day as parameter.`,
           parameters: z.object({
             year: z.number().optional(),
             month: z.number().optional(),
@@ -50,7 +50,6 @@ export async function POST(req: Request) {
             ]),
           }),
           execute: ({ year, month, day, current }) => {
-
             return getViolationsSummaryBasedOnDate({
               year,
               month,
@@ -83,35 +82,6 @@ export async function POST(req: Request) {
               to: new Date(to),
               dateFromFrontend: false,
             }),
-        }),
-
-        getHighestIntervalViolations: tool({
-          description: `Get the highest number of violations recorded in the specified interval. If no range is specified, set ${startOfYear(
-            new Date()
-          )} to the current date and ${endOfYear(
-            new Date()
-          )} to the current date. Output the date range.`,
-          parameters: z.object({
-            basedOn: z.enum([
-              Interval.hourly,
-              Interval.daily,
-              Interval.monthly,
-              Interval.yearly,
-            ]),
-            from: z.string(),
-            to: z.string(),
-          }),
-          execute: ({ basedOn, from, to }) => {
-            const fromRange = from ? new Date(from) : new Date();
-            const toRange = to ? new Date(to) : new Date();
-
-            return getViolationsBasedOnInterval({
-              basedOn,
-              from: fromRange || new Date(),
-              to: toRange || new Date(),
-              dateFromFrontend: false,
-            });
-          },
         }),
 
         getViolationsBasedOnStreetName: tool({
