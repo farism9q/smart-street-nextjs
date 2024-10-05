@@ -68,8 +68,6 @@ export async function POST(request: NextRequest) {
 
     // 3- Latitute and Longitude
     if (lat && long) {
-      console.log(lat, long);
-
       data = await getViolationsByLocation({
         latitude: Number(lat),
         longitude: Number(long),

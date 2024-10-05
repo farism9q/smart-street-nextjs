@@ -16,11 +16,15 @@ export function useGetViolationsSummary({
   const { data, isLoading, isPending, error } = useQuery({
     queryKey: ["violations-summary", year, month, day, current],
     queryFn: async () => {
+      let dateFromFrontend = false;
+      if (year || month || day) {
+        dateFromFrontend = true;
+      }
       const data = await getViolationsSummaryBasedOnDate({
         year,
         month,
         day,
-        dateFromFrontend: true,
+        dateFromFrontend,
         current,
       });
 

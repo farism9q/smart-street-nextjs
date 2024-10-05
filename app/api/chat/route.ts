@@ -50,8 +50,6 @@ export async function POST(req: Request) {
             ]),
           }),
           execute: ({ year, month, day, current }) => {
-            console.log("Hi, I am an ai");
-            console.log(year, month, day);
 
             return getViolationsSummaryBasedOnDate({
               year,
@@ -106,9 +104,6 @@ export async function POST(req: Request) {
           execute: ({ basedOn, from, to }) => {
             const fromRange = from ? new Date(from) : new Date();
             const toRange = to ? new Date(to) : new Date();
-
-            console.log("Hi, I am an ai [ getHighestIntervalViolations ]");
-            console.log(fromRange, toRange);
 
             return getViolationsBasedOnInterval({
               basedOn,
