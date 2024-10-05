@@ -47,7 +47,7 @@ export function useGetViolationsSummary({
   const nextCurrentDate = Object.values(CurrentDate)[(currentIdx + 1) % count];
 
   usePrefetchQuery({
-    queryKey: ["violations-summary", year, month, day, nextCurrentDate],
+    queryKey: ["violations-summary", nextCurrentDate],
     queryFn: async () => {
       // Prefetch the next date or the next current date
       const data = await getViolationsSummaryBasedOnDate({
