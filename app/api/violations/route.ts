@@ -1,7 +1,7 @@
 import {
   getAllViolation,
   getAllViolationsInRange,
-  getViolationsStats,
+  getViolationsSummaryBasedOnDate,
 } from "@/actions/violation";
 import { CurrentDate } from "@/types/violation";
 import { NextRequest, NextResponse } from "next/server";
@@ -10,12 +10,12 @@ export async function GET(request: NextRequest) {
   try {
     const basedOn = request.nextUrl.searchParams.get("basedOn");
 
-    // - Based on the current date
+    // 1- Based on the current date
     if (
       basedOn &&
       Object.values(CurrentDate).includes(basedOn as CurrentDate)
     ) {
-      const data = await getViolationsStats({
+      const data = await getViolationsSummaryBasedOnDate({
         current: basedOn as CurrentDate,
       });
 

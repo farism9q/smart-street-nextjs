@@ -23,7 +23,9 @@ import {
 } from "@/types/violation";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import {
+  addDays,
   endOfDay,
+  endOfWeek,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -48,7 +50,6 @@ function generatePieChartData(violations: Prisma.violationsGetPayload<any>[]) {
     if (!data[violationType]) {
       data[violationType] = {
         violationType:
-          // TODO: Make sure the violation type are same as in "ViolationType" enum in types/violation.ts
           ViolationType[violationType as keyof typeof ViolationType]["ar"],
         numberOfViolations: 0,
         fill: `var(--color-${violationType})`,
@@ -91,8 +92,8 @@ export default function PieChartComponent({
       from = startOfMonth(formatDate(new Date()));
       to = endOfDay(formatDate(new Date()));
     } else if (basedOn === CurrentDate.week) {
-      from = subDays(startOfWeek(formatDate(new Date())), 1);
-      to = endOfDay(formatDate(new Date()));
+      from = subDays(startOfWeek(addDays(formatDate(new Date()), 1)), 1);
+      to = subDays(endOfWeek(addDays(formatDate(new Date()), 1)), 1);
     } else {
       from = startOfDay(formatDate(new Date()));
       to = endOfDay(formatDate(new Date()));
@@ -100,10 +101,6 @@ export default function PieChartComponent({
 
     return { from, to };
   }, [basedOn]);
-
-  console.log("basedOn", basedOn);
-  console.log(from);
-  console.log(to);
 
   const {
     data: violations,
@@ -113,8 +110,6 @@ export default function PieChartComponent({
     from,
     to,
   });
-
-  console.log(violations);
 
   if (isLoading) {
     return <SkeletonLoading />;

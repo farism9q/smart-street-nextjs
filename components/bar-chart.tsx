@@ -62,6 +62,9 @@ export default function BarChartComponent({
     <Card>
       <CardHeader className="items-center pb-6 pt-8">
         <CardTitle className="font-medium">عدد المخالفات حسب الشارع</CardTitle>
+        <p className="text-muted-foreground text-sm">
+          اجمالي المخالفات: {violations.length}
+        </p>
       </CardHeader>
       <CardContent>
         <ChartContainer

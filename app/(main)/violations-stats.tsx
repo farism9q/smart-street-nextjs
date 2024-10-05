@@ -3,27 +3,25 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetViolationComparsion } from "@/hooks/use-get-violations-comparision";
-import { useGetViolationsStats } from "@/hooks/use-get-violations-stats";
 import { cn } from "@/lib/utils";
 import { CurrentDate, CurrentDateAdjEngToAr } from "@/types/violation";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { ComparisonCard } from "./comparison-card";
 import PieChartComponent from "@/components/pie-chart";
+import { useGetViolationsSummary } from "@/hooks/use-get-violations-summary";
 
 export const StatsCards = () => {
   const [current, setCurrent] = useState<CurrentDate>(CurrentDate.day);
 
-  const { data, isLoading, error } = useGetViolationsStats({
+  const { data, isLoading, error } = useGetViolationsSummary({
     current,
   });
+
   const { data: comparisonData, isLoading: isLoadingComparison } =
     useGetViolationComparsion({
       current,
     });
-
-  console.log("comparisonData");
-  console.log(comparisonData);
 
   if (isLoading) {
     return (
@@ -52,7 +50,7 @@ export const StatsCards = () => {
     }
   }
 
-  const { streetName, vehicleType, violationType } = data;
+  const { streetName, vehicleType, violationType } = data.violationsStats;
 
   return (
     <div className="flex flex-col gap-y-4">
