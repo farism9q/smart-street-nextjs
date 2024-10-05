@@ -466,8 +466,8 @@ export async function getViolationsSummaryBasedOnDate({
     }
 
     if (current === CurrentDate.week) {
-      from = subDays(startOfWeek(formatDate(new Date())), 1);
-      to = subDays(endOfWeek(formatDate(new Date())), 1);
+      from = subDays(startOfWeek(addDays(formatDate(new Date()), 1)), 1);
+      to = subDays(endOfWeek(addDays(formatDate(new Date()), 1)), 1);
     }
 
     if (current === CurrentDate.month) {

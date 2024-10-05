@@ -23,6 +23,7 @@ import {
 } from "@/types/violation";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import {
+  addDays,
   endOfDay,
   endOfWeek,
   startOfDay,
@@ -91,8 +92,8 @@ export default function PieChartComponent({
       from = startOfMonth(formatDate(new Date()));
       to = endOfDay(formatDate(new Date()));
     } else if (basedOn === CurrentDate.week) {
-      from = subDays(startOfWeek(formatDate(new Date())), 1);
-      to = subDays(endOfWeek(formatDate(new Date())), 1);
+      from = subDays(startOfWeek(addDays(formatDate(new Date()), 1)), 1);
+      to = subDays(endOfWeek(addDays(formatDate(new Date()), 1)), 1);
     } else {
       from = startOfDay(formatDate(new Date()));
       to = endOfDay(formatDate(new Date()));
