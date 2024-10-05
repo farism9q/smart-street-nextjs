@@ -1,10 +1,12 @@
 import {
   getAllViolation,
-  getViolationsStats,
   getTotalViolationsBasedOnYear,
-  getSummaryOfCurrentYear,
   getAllViolationsInRange,
   getViolationsBasedOnInterval,
+  getViolationsSummaryBasedOnDate,
+  getViolationsByStreetName,
+  getViolationsByViolationType,
+  getViolationsByLocation,
 } from "@/actions/violation";
 import { CurrentDate, Interval } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
@@ -31,23 +33,34 @@ export async function POST(req: Request) {
       system: `You are a helpful assistant. Use the provided tools to answer the user's questions.
       Here is the user's question: ${userQuery}.
       If the information cannot be found in the tools, respond with "Sorry, I don't know."`,
+      temperature: 0.5,
       maxSteps: 10,
       tools: {
         getViolationsStats: tool({
-          description:
-            "Retrieve the statistics of the violations recorded based on the current date. If the current date is a year, it will return the total number of violations recorded in current year. The same applies to the month, week, and day. Include all values if there more than one valeu",
+          description: `Retrieve the statistics of the violations recorded based on date. If asked of current year, month, week, or day, just use 'current' (only) as parameter. If asked of a specific year, month, week, or day, set the year, month, week, or day as parameter.`,
           parameters: z.object({
+            year: z.number().optional(),
+            month: z.number().optional(),
+            day: z.number().optional(),
             current: z.enum([
-              CurrentDate.day,
-              CurrentDate.week,
-              CurrentDate.month,
               CurrentDate.year,
+              CurrentDate.month,
+              CurrentDate.week,
+              CurrentDate.day,
             ]),
           }),
-          execute: ({ current }) =>
-            getViolationsStats({
+          execute: ({ year, month, day, current }) => {
+            console.log("Hi, I am an ai");
+            console.log(year, month, day);
+
+            return getViolationsSummaryBasedOnDate({
+              year,
+              month,
+              day,
               current,
-            }),
+              dateFromFrontend: false,
+            });
+          },
         }),
 
         getTotalViolationsBasedOnYear: tool({
@@ -57,13 +70,6 @@ export async function POST(req: Request) {
             year: z.number(),
           }),
           execute: ({ year }) => getTotalViolationsBasedOnYear(year),
-        }),
-
-        getSummaryOfCurrentYear: tool({
-          description:
-            "Get the total number of violations recorded in the current year, highest number of violations based on street, vehicle, violation type, and the day.",
-          parameters: z.object({}),
-          execute: () => getSummaryOfCurrentYear(),
         }),
 
         getViolationsInRange: tool({
@@ -81,7 +87,7 @@ export async function POST(req: Request) {
             }),
         }),
 
-        getHiestIntervalViolations: tool({
+        getHighestIntervalViolations: tool({
           description: `Get the highest number of violations recorded in the specified interval. If no range is specified, set ${startOfYear(
             new Date()
           )} to the current date and ${endOfYear(
@@ -101,7 +107,7 @@ export async function POST(req: Request) {
             const fromRange = from ? new Date(from) : new Date();
             const toRange = to ? new Date(to) : new Date();
 
-            console.log("fromRange - toRange");
+            console.log("Hi, I am an ai [ getHighestIntervalViolations ]");
             console.log(fromRange, toRange);
 
             return getViolationsBasedOnInterval({
@@ -111,6 +117,55 @@ export async function POST(req: Request) {
               dateFromFrontend: false,
             });
           },
+        }),
+
+        getViolationsBasedOnStreetName: tool({
+          description:
+            "Retrieve all violations recorded on the specified street name. If no range is specified, set 'from' and 'to' undefined.",
+          parameters: z.object({
+            streetName: z.string(),
+            from: z.any(),
+            to: z.any(),
+          }),
+          execute: ({ streetName, from, to }) =>
+            getViolationsByStreetName({
+              streetName,
+              from,
+              to,
+            }),
+        }),
+
+        getViolationsBasedOnViolationType: tool({
+          description:
+            "Retrieve all violations recorded based on the specified violation type. If no range is specified, set 'from' and 'to' undefined. If the violation type is not 'overtaking from right' or 'overtaking from left', just say 'Sorry, we currently have only two types: overtaking from right and left'.",
+          parameters: z.object({
+            violationType: z.enum([
+              "overtaking from right",
+              "overtaking from left",
+            ]),
+            from: z.any(),
+            to: z.any(),
+          }),
+          execute: ({ violationType, from, to }) =>
+            getViolationsByViolationType({
+              violationType,
+              from,
+              to,
+            }),
+        }),
+
+        getViolationsBasedOnLatLong: tool({
+          description:
+            "Retrieve all violations recorded based on the specified latitude and longitude.",
+          parameters: z.object({
+            lat: z.number(),
+            long: z.number(),
+          }),
+          execute: ({ lat, long }) =>
+            getViolationsByLocation({
+              latitude: lat,
+              longitude: long,
+            }),
         }),
 
         getAllViolations: tool({

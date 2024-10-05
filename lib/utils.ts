@@ -81,5 +81,4 @@ export const formatInteval = ({
 
 export const formatDate = (date: Date) => {
   return format(date, "yyyy-MM-dd");
-  // return format(new Date(), "yyyy-MM-dd");
 };

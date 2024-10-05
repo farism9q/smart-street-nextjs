@@ -57,7 +57,7 @@ export function LineChartTimeInterval({
 }: LineChartTimeIntervalProps) {
   const [interval, setInterval] = useState<Interval>(Interval.daily);
 
-  const { data, isLoading, error } = useGetViolationsInterval({
+  const { data, isLoading } = useGetViolationsInterval({
     basedOn: interval,
     from,
     to,
@@ -81,6 +81,7 @@ export function LineChartTimeInterval({
             أختر الفترة الزمنية التي تريد عرض البيانات الخاصة بها
           </span>
         </div>
+
         <Select
           onValueChange={intrvl => {
             setInterval(
