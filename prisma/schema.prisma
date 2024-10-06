@@ -9,18 +9,36 @@ datasource db {
 
 model violations {
   id                   String @id @default(auto()) @map("_id") @db.ObjectId
-  /// Multiple data types found: Int: 68.3%, BigInt: 31.7% out of 63 sampled entries
-  v                    Json   @map("__v")
   date                 String
   latitude             Float
-  license_plate_number String
+  /// Multiple data types found: String: 35.1%, Float: 64.9% out of 74 sampled entries
+  license_plate_number Json
   longitude            Float
   street_name          String
   time                 String
   vehicle_type         String
   violation_type       String
-  zip_code             String
 
-  @@map("Violations")
+  @@map("Violations-1")
 }
 
+model fs_chunks {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  data     Bytes
+  files_id String @db.ObjectId
+  n        Int
+
+  @@unique([files_id, n], map: "files_id_1_n_1")
+  @@map("fs.chunks")
+}
+
+model fs_files {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  chunkSize  Int
+  filename   String
+  length     BigInt
+  uploadDate DateTime @db.Date
+
+  @@index([filename, uploadDate], map: "filename_1_uploadDate_1")
+  @@map("fs.files")
+}

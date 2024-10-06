@@ -15,8 +15,6 @@ const violations: Prisma.violationsCreateInput[] = [
     longitude: 46.6823,
     latitude: 24.7139,
     street_name: "King Fahd Road",
-    v: 1,
-    zip_code: "12345",
   },
 ];
 

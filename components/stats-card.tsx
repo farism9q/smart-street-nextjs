@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CurrentDate } from "@/types/violation";
+import { CurrentDate, ViolationType } from "@/types/violation";
 
 type StatsCardProps = {
   title: string | undefined;
@@ -98,7 +98,15 @@ export default function StatsCard({
               <CarouselItem key={subT} className="select-none">
                 <div className="p-1">
                   <div className="flex items-center justify-center p-3 border">
-                    <span className="text-sm font-semibold">{subT}</span>
+                    <span className="text-sm font-semibold">
+                      {title === "نوع المخالفة"
+                        ? ViolationType[
+                            subT
+                              .replaceAll(" ", "")
+                              .toLowerCase() as keyof typeof ViolationType
+                          ]["ar"]
+                        : subT}
+                    </span>
                   </div>
                 </div>
               </CarouselItem>

@@ -115,7 +115,11 @@ export const StatsCards = () => {
           <StatsCard
             title="نوع المركبة"
             value={vehicleType?.maxCount}
-            subtitle={vehicleType?.maxVehicles}
+            subtitle={
+              // NOTE: We currently have only one type of vehicle, so it is 100% that the highest type would be a car.
+              // But in case we have more than one vehicle type, we would do this: vehicleType?.maxVehicles
+              ["سيارة"]
+            }
             errorState={
               !vehicleType?.maxCount
                 ? // ? `No max vehicle type with ${current}`
