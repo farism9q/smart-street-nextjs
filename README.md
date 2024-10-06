@@ -1,3 +1,6 @@
+# <div align="center"><b>Smart Street</b></div>
+
+
 This project is related to [Smart Street](https://github.com/TariqAlhathloul/Smart-Street) to build an interactive dashboard that displays a real-time map of vehicles with violations, integrating a chatbot feature for user interaction. The chatbot allows users to query the data, ask questions, identifying peak violation times. The dashboard also provides detailed analytics on violation locations and times for insightful decision-making.
 
 ##### Environment Variables
