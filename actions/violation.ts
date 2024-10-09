@@ -57,12 +57,19 @@ export async function getAllViolationsInRange({
   from,
   to,
   dateFromFrontend,
+  action,
 }: {
   from: Date | string;
   to: Date | string;
   dateFromFrontend: boolean;
+  action?: {
+    retreiveCount?: boolean;
+    summary?: boolean;
+  };
 }) {
   try {
+    console.log(from, to, dateFromFrontend);
+
     // Date sent from the frontend are one day behind, so we need to add one day to the to date
     // But in the backend, the date is correct.
     if (dateFromFrontend && process.env.NODE_ENV !== "development") {
@@ -72,6 +79,38 @@ export async function getAllViolationsInRange({
 
     const fromStr = format(from, "yyyy-MM-dd");
     const toStr = format(to, "yyyy-MM-dd");
+
+    console.log("action", action);
+
+    if (action?.retreiveCount) {
+      const data = await db.violations.count({
+        where: {
+          date: {
+            gte: fromStr,
+            lte: toStr,
+          },
+        },
+      });
+      return data;
+    }
+
+    if (action?.summary) {
+      const year =
+        from instanceof Date
+          ? from.getFullYear()
+          : new Date(from).getFullYear();
+      const month =
+        from instanceof Date
+          ? from.getMonth() + 1
+          : new Date(from).getMonth() + 1;
+      const day =
+        from instanceof Date ? from.getDate() : new Date(from).getDate();
+      const data = await getViolationsSummaryBasedOnDate({
+        year,
+        month,
+        day,
+      });
+    }
 
     const data = await db.violations.findMany({
       where: {
@@ -231,6 +270,7 @@ export async function getTotalViolationsBasedOnYear(year: number) {
  * @param {boolean} dateFromFrontend required to fix the date issue from the frontend (date is one day behind)
  * @returns {Promise<{result: any[], from: Date, to: Date, basedOn: Interval}>} The total number of violations recorded in the specified interval
  * @example getViolationsBasedOnInterval({ from: new Date("2024-09-01"), to: new Date("2024-09-30"), basedOn: Interval.daily, dateFromFrontend: true }) // Returns the total number of violations recorded in each day between 2024-09-01 and 2024-09-30
+ * @example getViolationsBasedOnInterval({ basedOn: Interval.hourly, from: new Date("2024-09-01"), to: new Date("2024-09-30"), dateFromFrontend: true }) // Returns the total number of violations recorded in each hour between 2024-09-01 and 2024-09-30
  */
 export async function getViolationsBasedOnInterval({
   from,
@@ -368,6 +408,7 @@ export async function getViolationsBasedOnInterval({
  * @param {CurrentDate} current Optional
  * @returns {Promise<{totalViolations: number, highestViolatedDay: {day: string, count: number}, violationsStats: {streetName: {maxCount: number, maxStreets: string[]}, vehicleType: {maxCount: number, maxVehicles: string[]}, violationType: {maxCount: number, maxViolations: string[]}} | null>} The total number of violations recorded in the specified date, the highest number of violations recorded in a day, and the stats of the violations in the specified date
  * @example getViolationsSummaryBasedOnDate({ year: 2024, month: 9, day: 30 }) // Returns the total number of violations recorded on 2024-09-30, the highest number of violations based on street, vehicle, violation type, and the day
+ * @example getViolationsSummaryBasedOnDate({current: CurrentDate.day}) // Returns the total number of violations recorded on the current day, the highest number of violations based on street, vehicle, violation type, and the day
  */
 export async function getViolationsSummaryBasedOnDate({
   year,

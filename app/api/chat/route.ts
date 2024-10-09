@@ -11,7 +11,7 @@ import {
 import { CurrentDate, Interval } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
 import { streamText, convertToCoreMessages, CoreMessage, tool } from "ai";
-import { endOfYear, startOfYear } from "date-fns";
+import { addDays, endOfYear, startOfYear } from "date-fns";
 import { z } from "zod";
 
 // Allow streaming responses up to 60 seconds
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     const result = await streamText({
       model: openai("gpt-4o"),
       messages: [...convertToCoreMessages(filteredMessages)],
-      system: `You are a helpful assistant. Use the provided tools to answer the user's questions.
+      system: `You are a helpful assistant. Use the provided tools to answer the user's questions about traffic violations in Riyadh.
       Here is the user's question: ${userQuery}.
       If the information cannot be found in the tools, respond with "لا أعرف"`,
       temperature: 0.5,
@@ -70,17 +70,26 @@ export async function POST(req: Request) {
         }),
 
         getViolationsInRange: tool({
-          description:
-            "Use this tool to get all violations recorded in the specified range.",
+          description: `Use this tool to get all violations recorded in the specified range.
+          Use this tool in case a questions like retreiving 'yesterday', 'previous week' or 'last month' counts or total is asked. NOTE: Current date is ${new Date()}.
+          If a summary is asked, set 'summary' to true. If only the count is asked, set 'retreiveCount' to true.
+          
+          `,
           parameters: z.object({
             from: z.string(),
             to: z.string(),
+            retreiveCount: z.boolean().optional(),
+            summary: z.boolean().optional(),
           }),
-          execute: ({ from, to }) =>
+          execute: ({ from, to, retreiveCount, summary }) =>
             getAllViolationsInRange({
               from: new Date(from),
               to: new Date(to),
               dateFromFrontend: false,
+              action: {
+                retreiveCount,
+                summary,
+              },
             }),
         }),
 
@@ -156,8 +165,11 @@ export async function POST(req: Request) {
       }
     }
 
+    console.log(result.toolCalls);
+
     return result.toDataStreamResponse();
   } catch (error) {
+    console.error(error);
     return new Response("Internal server error", { status: 500 });
   }
 }

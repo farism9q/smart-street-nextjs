@@ -52,7 +52,7 @@ type MapProps = {
 };
 
 export default function Map({ violations }: MapProps) {
-  const [coordinates, _setCoordinates] = useState<{
+  const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
   }>({
@@ -60,6 +60,17 @@ export default function Map({ violations }: MapProps) {
     lng: 46.6176,
   });
   const { theme } = useTheme();
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        setCoordinates({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    }
+  }, []);
 
   const mapUrl =
     theme === "light"

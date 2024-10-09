@@ -119,7 +119,9 @@ export default function PieChartComponent({
     return <p>Something went wrong</p>;
   }
 
-  const data = generatePieChartData(violations);
+  const data = generatePieChartData(
+    violations as Prisma.violationsGetPayload<any>[]
+  );
 
   if (data.length === 0) {
     return (
