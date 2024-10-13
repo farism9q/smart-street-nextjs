@@ -1,3 +1,5 @@
+import dynamic from "next/dynamic";
+
 import { useDashboardMode } from "@/hooks/use-dashboard-mode";
 import { useGetViolationsSummary } from "@/hooks/use-get-violations-summary";
 import { useGetViolationComparsion } from "@/hooks/use-get-violations-comparision";
@@ -11,7 +13,6 @@ import {
 
 import { ComparisonCard } from "./comparison-card";
 import StatsCard from "@/components/stats-card";
-import Map from "@/components/map";
 import { Skeleton } from "@/components/ui/skeleton";
 import PieChartComponent from "@/components/pie-chart";
 import BarChartComponent from "@/components/bar-chart";
@@ -29,6 +30,11 @@ import {
   subDays,
 } from "date-fns";
 import { formatDate } from "@/lib/utils";
+
+const Map = dynamic(() => import("@/components/map"), {
+  ssr: false,
+  loading: () => <Skeleton className="w-full h-[500px] rounded-lg" />,
+});
 
 function getDateBasedOn(basedOn: CurrentDate) {
   let from = new Date();
