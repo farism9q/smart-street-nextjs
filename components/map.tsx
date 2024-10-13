@@ -21,6 +21,8 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 
 import "leaflet/dist/leaflet.css";
 import "@/app/styles/map.css";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
+import { cn } from "@/lib/utils";
 
 const CLASS_COLORS = {
   "car": "red",
@@ -49,9 +51,11 @@ type MapProps = {
   violations:
     | Prisma.violationsGetPayload<{ select: typeof violationSelect }>[]
     | undefined;
+
+  zoom?: number;
 };
 
-export default function Map({ violations }: MapProps) {
+export default function Map({ violations, zoom }: MapProps) {
   const [coordinates, _setCoordinates] = useState<{
     lat: number;
     lng: number;
@@ -60,7 +64,7 @@ export default function Map({ violations }: MapProps) {
     lng: 46.6176,
   });
   const { theme } = useTheme();
-
+  const { isActive } = useDashboardMode();
   const mapUrl =
     theme === "light"
       ? `https://tile.jawg.io/1e6bb23b-f7a9-4ca7-a41d-1c1c4124ec5c/{z}/{x}/{y}{r}.png?access-token=${process.env.NEXT_PUBLIC_JAWG_API_KEY_LIGHT}`
@@ -85,13 +89,16 @@ export default function Map({ violations }: MapProps) {
       {coordinates ? (
         <MapContainer
           maxZoom={18}
-          className="min-h-[500px] w-full h-full"
+          className={cn(
+            "min-h-[500px] w-full h-full",
+            isActive && "hide-zoom-controls"
+          )}
           center={
             meanCoords
               ? [meanCoords.lat, meanCoords.lng]
               : [coordinates.lat, coordinates.lng]
           }
-          zoom={12}
+          zoom={zoom || 12}
           scrollWheelZoom={false}
         >
           <Suspense
@@ -101,92 +108,130 @@ export default function Map({ violations }: MapProps) {
               </div>
             }
           >
-            <LayersControl>
-              <LayersControl.Overlay name="Markers" checked>
-                <FeatureGroup>
-                  {violations?.map(violation => (
-                    <CircleMarker
-                      key={violation.id}
-                      center={[violation.latitude, violation.longitude]}
-                      pathOptions={{
-                        color:
-                          CLASS_COLORS[
-                            violation.vehicle_type as keyof typeof CLASS_COLORS
-                          ],
-                      }}
-                      interactive={true}
-                      radius={5}
-                    >
-                      <Popup>
-                        <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
-                          <p className="text-lg font-semibold">
-                            A{" "}
-                            <span className="text-blue-500">
-                              {violation.vehicle_type}
-                            </span>{" "}
-                            detected
-                          </p>
-                          <p className="text-sm">
-                            Coordinates:{" "}
-                            <span className="font-bold text-green-500">
-                              {violation.latitude}, {violation.longitude}
-                            </span>
-                          </p>
-                          <p className="text-sm">
-                            Violation:{" "}
-                            <span className="font-bold text-red-500">
-                              {violation.violation_type}
-                            </span>
-                          </p>
-                        </div>
-                      </Popup>
-                    </CircleMarker>
-                  ))}
-                </FeatureGroup>
-              </LayersControl.Overlay>
+            {!isActive && (
+              <LayersControl>
+                <LayersControl.Overlay name="Markers" checked>
+                  <FeatureGroup>
+                    {violations?.map(violation => (
+                      <CircleMarker
+                        key={violation.id}
+                        center={[violation.latitude, violation.longitude]}
+                        pathOptions={{
+                          color:
+                            CLASS_COLORS[
+                              violation.vehicle_type as keyof typeof CLASS_COLORS
+                            ],
+                        }}
+                        interactive={true}
+                        radius={5}
+                      >
+                        <Popup>
+                          <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
+                            <p className="text-lg font-semibold">
+                              A{" "}
+                              <span className="text-blue-500">
+                                {violation.vehicle_type}
+                              </span>{" "}
+                              detected
+                            </p>
+                            <p className="text-sm">
+                              Coordinates:{" "}
+                              <span className="font-bold text-green-500">
+                                {violation.latitude}, {violation.longitude}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              Violation:{" "}
+                              <span className="font-bold text-red-500">
+                                {violation.violation_type}
+                              </span>
+                            </p>
+                          </div>
+                        </Popup>
+                      </CircleMarker>
+                    ))}
+                  </FeatureGroup>
+                </LayersControl.Overlay>
 
-              <LayersControl.Overlay name="Clusters" checked>
-                <MarkerClusterGroup chunkedLoading>
-                  {violations?.map((violation, index) => (
-                    <Marker
-                      icon={customIcon}
-                      key={violation.id}
-                      position={[violation.latitude, violation.longitude]}
-                      title={violation.vehicle_type}
-                    >
-                      <Popup>
-                        <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
-                          <p className="text-lg font-semibold">
-                            A{" "}
-                            <span className="text-blue-500">
-                              {violation.vehicle_type}
-                            </span>{" "}
-                            detected
-                          </p>
-                          <p className="text-sm">
-                            Coordinates:{" "}
-                            <span className="font-bold text-green-500">
-                              {violation.latitude}, {violation.longitude}
-                            </span>
-                          </p>
-                          <p className="text-sm">
-                            Violation:{" "}
-                            <span className="font-bold text-red-500">
-                              {violation.violation_type}
-                            </span>
-                          </p>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  ))}
-                </MarkerClusterGroup>
-              </LayersControl.Overlay>
+                <LayersControl.Overlay name="Clusters" checked>
+                  <MarkerClusterGroup chunkedLoading>
+                    {violations?.map((violation, index) => (
+                      <Marker
+                        icon={customIcon}
+                        key={violation.id}
+                        position={[violation.latitude, violation.longitude]}
+                        title={violation.vehicle_type}
+                      >
+                        <Popup>
+                          <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
+                            <p className="text-lg font-semibold">
+                              A{" "}
+                              <span className="text-blue-500">
+                                {violation.vehicle_type}
+                              </span>{" "}
+                              detected
+                            </p>
+                            <p className="text-sm">
+                              Coordinates:{" "}
+                              <span className="font-bold text-green-500">
+                                {violation.latitude}, {violation.longitude}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              Violation:{" "}
+                              <span className="font-bold text-red-500">
+                                {violation.violation_type}
+                              </span>
+                            </p>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    ))}
+                  </MarkerClusterGroup>
+                </LayersControl.Overlay>
+              </LayersControl>
+            )}
+            {isActive && (
+              <MarkerClusterGroup chunkedLoading>
+                {violations?.map((violation, index) => (
+                  <Marker
+                    icon={customIcon}
+                    key={violation.id}
+                    position={[violation.latitude, violation.longitude]}
+                    title={violation.vehicle_type}
+                  >
+                    <Popup>
+                      <div className="p-4 bg-white text-gray-800 rounded-md shadow-md">
+                        <p className="text-lg font-semibold">
+                          A{" "}
+                          <span className="text-blue-500">
+                            {violation.vehicle_type}
+                          </span>{" "}
+                          detected
+                        </p>
+                        <p className="text-sm">
+                          Coordinates:{" "}
+                          <span className="font-bold text-green-500">
+                            {violation.latitude}, {violation.longitude}
+                          </span>
+                        </p>
+                        <p className="text-sm">
+                          Violation:{" "}
+                          <span className="font-bold text-red-500">
+                            {violation.violation_type}
+                          </span>
+                        </p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MarkerClusterGroup>
+            )}
 
-              <TileLayer
-                attribution={`&copy; <a href=\"https://www.jawg.io?utm_medium=map&utm_source=attribution\" target=\"_blank\">&copy; Jawg</a> - <a href=\"https://www.openstreetmap.org?utm_medium=map-attribution&utm_source=jawg\" target=\"_blank\">&copy; OpenStreetMap</a>&nbsp;contributors"`}
-                url={mapUrl}
-              />
-            </LayersControl>
+            <TileLayer
+              attribution={`&copy; <a href=\"https://www.jawg.io?utm_medium=map&utm_source=attribution\" target=\"_blank\">&copy; Jawg</a> - <a href=\"https://www.openstreetmap.org?utm_medium=map-attribution&utm_source=jawg\" target=\"_blank\">&copy; OpenStreetMap</a>&nbsp;contributors"`}
+              url={mapUrl}
+            />
           </Suspense>
         </MapContainer>
       ) : (

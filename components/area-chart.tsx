@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/chart";
 
 import { Prisma } from "@prisma/client";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
 
 // This function will be used to generate the data for the area chart
 function generateAreaChartDate(violations: Prisma.violationsGetPayload<any>[]) {
@@ -68,39 +69,40 @@ export default function AreaChartComponent({
   from: Date;
   to: Date;
 }) {
+  const { isActive } = useDashboardMode();
   const data = generateAreaChartDate(violations) as any;
 
   const noViolations = data.length === 0;
 
   return (
-    <Card>
-      <CardHeader className="flex items-center md:items-end gap-2 py-4">
-        <div className="flex flex-1 flex-col justify-center gap-1 py-5 sm:py-6">
-          <CardTitle className="font-medium pb-4">
-            المخالفات حسب نوع المخالفة
-          </CardTitle>
-        </div>
-        <CardDescription>
-          جميع المخالفات المسجلة حسب نوع المخالفة من{" "}
-          <strong>
-            {from.toLocaleDateString("ar-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </strong>{" "}
-          إلى{" "}
-          <strong>
-            {to.toLocaleDateString("ar-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </strong>
-        </CardDescription>
+    <Card className="h-full">
+      <CardHeader className="flex flex-col items-center py-4">
+        <CardTitle className="font-medium pb-4 text-center">
+          المخالفات حسب نوع المخالفة
+        </CardTitle>
+        {!isActive && (
+          <CardDescription className="text-center">
+            جميع المخالفات المسجلة حسب نوع المخالفة من{" "}
+            <strong>
+              {from.toLocaleDateString("ar-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </strong>{" "}
+            إلى{" "}
+            <strong>
+              {to.toLocaleDateString("ar-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </strong>
+          </CardDescription>
+        )}
       </CardHeader>
 
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex justify-center">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
@@ -110,6 +112,7 @@ export default function AreaChartComponent({
             margin={{
               left: 12,
               right: 12,
+              bottom: 20,
             }}
           >
             <defs>
@@ -156,7 +159,8 @@ export default function AreaChartComponent({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
+              interval="preserveStartEnd"
+              fontSize={!isActive ? 12 : 8}
               tickFormatter={value => {
                 const date = new Date(value);
                 return date.toLocaleDateString("ar-US", {

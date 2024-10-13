@@ -10,6 +10,8 @@ import { Chatbot } from "@/components/chatbot";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Charts } from "./charts";
 import { StatsCards } from "./violations-stats";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
+import { DashboardModeContent } from "./dashboard-mode-content";
 
 const Map = dynamic(() => import("@/components/map"), {
   ssr: false,
@@ -19,8 +21,13 @@ const Map = dynamic(() => import("@/components/map"), {
 export default function DashboardPage() {
   const { active, toggleActive, fullScreen, toggleFullScreen } = useChatbot();
   const { data: violations, isLoading } = useGetViolations();
+  const { isActive } = useDashboardMode();
 
   const isMobile = useMedia(`(max-width: ${MOBILE_WIDTH}px)`, false);
+
+  if (isActive) {
+    return <DashboardModeContent />;
+  }
 
   return (
     <div className="flex flex-col px-4">

@@ -3,6 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import CountUp from "react-countup";
 
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
+import { cn } from "@/lib/utils";
 
 type ComparisonCardProps = {
   title: string;
@@ -19,6 +21,7 @@ export const ComparisonCard = ({
   whatToCompare,
   diff,
 }: ComparisonCardProps) => {
+  const { isActive } = useDashboardMode();
   const direction = diff ? (diff > 0 ? "increased" : "decreased") : "same";
 
   let color;
@@ -35,8 +38,8 @@ export const ComparisonCard = ({
       : Minus;
 
   return (
-    <Card>
-      <CardHeader className="relative">
+    <Card className="flex flex-col h-full">
+      <CardHeader className="relative flex-shrink-0">
         <div
           className="absolute top-0 left-[50%] h-fit w-1/2 text-muted-foreground bg-primary/20
         shadow-lg transform -translate-x-1/2 rounded-md flex justify-center items-center p-2
@@ -47,8 +50,8 @@ export const ComparisonCard = ({
           </span>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center space-y-2">
-        <CardTitle className="text-sm lg:text-lg font-medium text-center">
+      <CardContent className="flex flex-col items-center justify-center flex-grow space-y-2">
+        <CardTitle className={cn("text-center", isActive && "text-sm")}>
           {title}
         </CardTitle>
 
