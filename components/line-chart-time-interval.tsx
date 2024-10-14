@@ -28,6 +28,7 @@ import {
 } from "./ui/select";
 import { formatInteval } from "@/lib/utils";
 import { useState } from "react";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
 
 function generateData({
   data,
@@ -55,10 +56,17 @@ export function LineChartTimeInterval({
   from,
   to,
 }: LineChartTimeIntervalProps) {
-  const [interval, setInterval] = useState<Interval>(Interval.daily);
+  const {
+    isActive,
+    setInterval: setDashboardInterval,
+    interval: dashboardInterval,
+  } = useDashboardMode();
+  const [interval, setInterval] = useState<Interval>(() =>
+    isActive ? dashboardInterval : Interval.daily
+  );
 
   const { data, isLoading } = useGetViolationsInterval({
-    basedOn: interval,
+    basedOn: isActive ? dashboardInterval : interval,
     from,
     to,
   });
@@ -69,122 +77,126 @@ export function LineChartTimeInterval({
   });
 
   return (
-    <Card>
-      <CardHeader className="flex items-center md:items-end gap-2 py-4 px-6">
-        <div className="flex flex-col items-end gap-2">
-          <CardTitle>
-            <p className="text-3xl font-medium tracking-widest">
-              {IntervalEngToAr[interval]}
-            </p>
-          </CardTitle>
-          <span className="text-muted-foreground text-center">
-            أختر الفترة الزمنية التي تريد عرض البيانات الخاصة بها
-          </span>
-        </div>
-
-        <Select
-          onValueChange={intrvl => {
-            setInterval(
-              Object.values(Interval).find(i => i === intrvl) as Interval
-            );
-          }}
-          disabled={isLoading}
-          defaultValue={interval}
-        >
-          <SelectTrigger className="w-[180px] text-end">
-            <SelectValue placeholder="اختر الفترة الزمنية" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {Object.values(Interval).map(intrvl => (
-                <SelectItem key={intrvl} value={intrvl}>
-                  {IntervalEngToAr[intrvl]}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <CardDescription>
-          من{" "}
-          <strong>
-            {from.toLocaleDateString("ar-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </strong>{" "}
-          إلى{" "}
-          <strong>
-            {to.toLocaleDateString("ar-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </strong>
-        </CardDescription>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="py-4 px-6">
+        <CardTitle className="font-medium text-center">
+          المخالفات حسب الفترة الزمنية المحددة({IntervalEngToAr[interval]})
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer
-          className="aspect-auto h-[250px] w-full py-2"
-          config={{
-            [interval]: {
-              label: interval,
-              color: "hsl(var(--chart-1))",
-            },
-          }}
-        >
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey={interval}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={value => {
-                return `${value}`;
+      <CardContent className="flex-grow flex flex-col justify-center">
+        {!isActive && (
+          <div className="flex flex-col items-end gap-2 mb-4">
+            {!isActive && (
+              <CardDescription className="text-center">
+                أختر الفترة الزمنية التي تريد عرض البيانات الخاصة بها
+              </CardDescription>
+            )}
+            <Select
+              onValueChange={intrvl => {
+                setInterval(
+                  Object.values(Interval).find(i => i === intrvl) as Interval
+                );
+                setDashboardInterval(intrvl as Interval);
               }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <Line
-              dataKey="total"
-              type="natural"
-              stroke="hsl(var(--chart-1))"
-              strokeWidth={2}
-              dot={{
-                fill: "hsl(var(--chart-1))",
-              }}
-              activeDot={{
-                r: 6,
-              }}
+              disabled={isLoading}
+              defaultValue={interval}
             >
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
-              />
-            </Line>
-          </LineChart>
-        </ChartContainer>
-
-        {chartData && chartData.length === 0 && (
-          <div className="text-center space-y-2">
+              <SelectTrigger className="w-[180px] text-end">
+                <SelectValue placeholder="اختر الفترة الزمنية" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {Object.values(Interval).map(intrvl => (
+                    <SelectItem key={intrvl} value={intrvl}>
+                      {IntervalEngToAr[intrvl]}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <CardDescription>
+              من{" "}
+              <strong>
+                {from.toLocaleDateString("ar-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </strong>{" "}
+              إلى{" "}
+              <strong>
+                {to.toLocaleDateString("ar-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </strong>
+            </CardDescription>
+          </div>
+        )}
+        {chartData && chartData.length === 0 ? (
+          <div className="text-center space-y-2 flex flex-col justify-center h-[250px]">
             <h3 className="text-2xl font-bold">لا توجد بيانات لعرضها</h3>
             <p className="text-muted-foreground">
               لا توجد بيانات لعرضها من التاريخ والفترة الزمنية المحدده
             </p>
           </div>
+        ) : (
+          <ChartContainer
+            className="aspect-auto h-[250px] w-full py-2"
+            config={{
+              [interval]: {
+                label: interval,
+                color: "hsl(var(--chart-1))",
+              },
+            }}
+          >
+            <LineChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                top: 20,
+                left: 16,
+                right: 16,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey={interval}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                interval="preserveStartEnd"
+                tickFormatter={value => {
+                  return `${value}`;
+                }}
+                fontSize={!isActive ? 12 : 8}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              <Line
+                dataKey="total"
+                type="natural"
+                stroke="hsl(var(--chart-1))"
+                strokeWidth={2}
+                dot={{
+                  fill: "hsl(var(--chart-1))",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
+              >
+                <LabelList
+                  position="top"
+                  offset={12}
+                  className="fill-foreground"
+                  fontSize={12}
+                />
+              </Line>
+            </LineChart>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>

@@ -2,7 +2,6 @@ import {
   getAllViolation,
   getTotalViolationsBasedOnYear,
   getAllViolationsInRange,
-  getViolationsBasedOnInterval,
   getViolationsSummaryBasedOnDate,
   getViolationsByStreetName,
   getViolationsByViolationType,
@@ -11,7 +10,6 @@ import {
 import { CurrentDate, Interval } from "@/types/violation";
 import { openai } from "@ai-sdk/openai";
 import { streamText, convertToCoreMessages, CoreMessage, tool } from "ai";
-import { addDays, endOfYear, startOfYear } from "date-fns";
 import { z } from "zod";
 
 // Allow streaming responses up to 60 seconds
@@ -37,17 +35,26 @@ export async function POST(req: Request) {
       maxSteps: 10,
       tools: {
         getViolationsStats: tool({
-          description: `Retrieve the total violations, summary of violations, and highest violations on day recorded based on date. If asked of current year, month, week, or day, just use 'current' (only) as parameter. If asked of a specific year, month, week, or day, set the year, month, week, or day as parameter.`,
+          description: `Retrieve the total violations, summary of violations, and highest violations on day recorded based on date.
+          Use 'current' parameter for queries about the current year, month, week, or day.
+          For specific dates or relative time periods (e.g., last month, previous year):
+          - If asked about previous month, set 'month' to the previous month. 
+          - If asked about previous year, set 'year' to the previous year.
+          - If asked about previous day, set 'day' to the previous day.
+          Note: If did not specify the date, the default is the current date, which is ${new Date().toLocaleDateString()}.
+          `,
           parameters: z.object({
             year: z.number().optional(),
             month: z.number().optional(),
             day: z.number().optional(),
-            current: z.enum([
-              CurrentDate.year,
-              CurrentDate.month,
-              CurrentDate.week,
-              CurrentDate.day,
-            ]),
+            current: z
+              .enum([
+                CurrentDate.year,
+                CurrentDate.month,
+                CurrentDate.week,
+                CurrentDate.day,
+              ])
+              .optional(),
           }),
           execute: ({ year, month, day, current }) => {
             return getViolationsSummaryBasedOnDate({
@@ -70,11 +77,15 @@ export async function POST(req: Request) {
         }),
 
         getViolationsInRange: tool({
-          description: `Use this tool to get all violations recorded in the specified range.
-          Use this tool in case a questions like retreiving 'yesterday', 'previous week' or 'last month' counts or total is asked. NOTE: Current date is ${new Date()}.
-          If a summary is asked, set 'summary' to true. If only the count is asked, set 'retreiveCount' to true.
-          
-          `,
+          description: `Use this tool to get violations recorded in a specified range.
+          Handles queries for 'yesterday', 'previous week', 'last month', etc. Current date: ${
+            new Date().toISOString().split("T")[0]
+          }.
+          Set appropriate flags based on the query:
+          - For summaries: set 'summary' to true
+          - For counts only: set 'retrieveCount' to true
+          - For full data: leave both flags false
+          Specify date range using 'from' and 'to' parameters.`,
           parameters: z.object({
             from: z.string(),
             to: z.string(),

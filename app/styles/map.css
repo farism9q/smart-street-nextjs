@@ -1,3 +1,7 @@
 .leaflet-control-attribution {
   display: none;
 }
+
+.hide-zoom-controls .leaflet-control-zoom {
+  display: none;
+}

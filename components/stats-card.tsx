@@ -17,6 +17,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CurrentDate, ViolationType } from "@/types/violation";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
+import { cn } from "@/lib/utils";
 
 type StatsCardProps = {
   title: string | undefined;
@@ -26,7 +28,7 @@ type StatsCardProps = {
   errorState?: string;
   diff?: number | null;
   whatToCompare?: CurrentDate;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   directionIcon?: LucideIcon | null;
 };
 
@@ -40,6 +42,8 @@ export default function StatsCard({
 }: StatsCardProps) {
   const Icon = icon;
 
+  const { isActive } = useDashboardMode();
+
   if (errorState) {
     return (
       <Card className="w-full h-full">
@@ -48,7 +52,7 @@ export default function StatsCard({
         </CardHeader>
 
         <CardContent className="flex flex-col items-center justify-center space-y-2">
-          <CardTitle className="text-sm lg:text-lg font-medium">
+          <CardTitle className={cn("text-center", isActive && "text-sm")}>
             {title}
           </CardTitle>
 
@@ -73,21 +77,23 @@ export default function StatsCard({
   }
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-end justify-end space-y-0 pb-0 md:pb-2">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger>
-              <Icon className="h-4 w-4 text-muted-foreground" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{tooltip}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        {Icon && (
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger>
+                <Icon className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center space-y-2">
-        <CardTitle className="text-md lg:text-xl font-medium">
+      <CardContent className="flex flex-col items-center justify-center space-y-2 flex-grow">
+        <CardTitle className={cn("text-lg text-center", isActive && "text-sm")}>
           {title}
         </CardTitle>
 
@@ -96,18 +102,21 @@ export default function StatsCard({
             {subtitle?.map(subT => (
               // "select-none" makes the slider smooth. Without it, many texts will be selected when dragging the slider.
               <CarouselItem key={subT} className="select-none">
-                <div className="p-1">
-                  <div className="flex items-center justify-center p-3 border">
-                    <span className="text-sm font-semibold">
-                      {title === "نوع المخالفة"
-                        ? ViolationType[
-                            subT
-                              .replaceAll(" ", "")
-                              .toLowerCase() as keyof typeof ViolationType
-                          ]["ar"]
-                        : subT}
-                    </span>
-                  </div>
+                <div className="flex items-center justify-center p-1.5 border">
+                  <span
+                    className={cn(
+                      "font-semibold text-sm text-center",
+                      isActive && "text-xs"
+                    )}
+                  >
+                    {title === "نوع المخالفة"
+                      ? ViolationType[
+                          subT
+                            .replaceAll(" ", "")
+                            .toLowerCase() as keyof typeof ViolationType
+                        ]["ar"]
+                      : subT}
+                  </span>
                 </div>
               </CarouselItem>
             ))}

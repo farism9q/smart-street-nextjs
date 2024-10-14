@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { addDays, format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -17,9 +17,9 @@ import BarChartComponent from "@/components/bar-chart";
 import AreaChartComponent from "@/components/area-chart";
 import { useGetAllViolationsInRange } from "@/hooks/use-get-violations-range";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetViolationsInterval } from "@/hooks/use-get-violations-interval";
-import { Interval } from "@/types/violation";
 import { LineChartTimeInterval } from "@/components/line-chart-time-interval";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
+import { Prisma } from "@prisma/client";
 
 type ChartProps = {
   className?: string;
@@ -30,24 +30,27 @@ export function Charts({ className }: ChartProps) {
     from: addDays(new Date(), -7),
     to: new Date(),
   });
+  const { setFrom, setTo } = useDashboardMode();
 
-  // Selected date range or in week
-  const from = date?.from || addDays(new Date(), -7);
-  const to = date?.to || new Date();
+  const { from, to } = useMemo(
+    () => ({
+      from: date?.from || addDays(new Date(), -7),
+      to: date?.to || new Date(),
+    }),
+    [date]
+  );
+
+  useEffect(() => {
+    setFrom(from);
+    setTo(to);
+  }, [from, to, setFrom, setTo]);
 
   const { data: violations, isLoading } = useGetAllViolationsInRange({
     from,
     to,
   });
 
-  const { data: violationsInterval, isLoading: isLoadingInterval } =
-    useGetViolationsInterval({
-      basedOn: Interval.hourly,
-      from,
-      to,
-    });
-
-  if (isLoading || isLoadingInterval) {
+  if (isLoading) {
     <SkeletonLoading />;
   }
 
@@ -118,10 +121,18 @@ export function Charts({ className }: ChartProps) {
 
       {violations && (
         <>
-          <BarChartComponent violations={violations} />
+          <BarChartComponent
+            violations={violations as Prisma.violationsGetPayload<any>[]}
+            title="المخالفات حسب نوع المركبة"
+            layout="horizontal"
+          />
 
           <LineChartTimeInterval from={from} to={to} />
-          <AreaChartComponent from={from} to={to} violations={violations} />
+          <AreaChartComponent
+            from={from}
+            to={to}
+            violations={violations as Prisma.violationsGetPayload<any>[]}
+          />
         </>
       )}
     </div>

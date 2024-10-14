@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllViolationsInRange } from "@/actions/violation";
+import { Prisma } from "@prisma/client";
 
 export function useGetAllViolationsInRange({
   from,
@@ -15,6 +16,10 @@ export function useGetAllViolationsInRange({
         from,
         to,
         dateFromFrontend: true,
+        action: {
+          summary: false,
+          retreiveCount: false,
+        },
       });
 
       if (violations instanceof Error) {
@@ -25,7 +30,7 @@ export function useGetAllViolationsInRange({
         throw new Error("No data found");
       }
 
-      return violations;
+      return violations as Prisma.violationsSelect;
     },
   });
 

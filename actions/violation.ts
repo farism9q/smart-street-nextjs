@@ -68,8 +68,6 @@ export async function getAllViolationsInRange({
   };
 }) {
   try {
-    console.log(from, to, dateFromFrontend);
-
     // Date sent from the frontend are one day behind, so we need to add one day to the to date
     // But in the backend, the date is correct.
     if (dateFromFrontend && process.env.NODE_ENV !== "development") {
@@ -79,8 +77,6 @@ export async function getAllViolationsInRange({
 
     const fromStr = format(from, "yyyy-MM-dd");
     const toStr = format(to, "yyyy-MM-dd");
-
-    console.log("action", action);
 
     if (action?.retreiveCount) {
       const data = await db.violations.count({
@@ -110,6 +106,8 @@ export async function getAllViolationsInRange({
         month,
         day,
       });
+
+      return data;
     }
 
     const data = await db.violations.findMany({

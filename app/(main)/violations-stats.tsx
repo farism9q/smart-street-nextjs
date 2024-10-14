@@ -6,13 +6,19 @@ import { useGetViolationComparsion } from "@/hooks/use-get-violations-comparisio
 import { cn } from "@/lib/utils";
 import { CurrentDate, CurrentDateAdjEngToAr } from "@/types/violation";
 import { AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ComparisonCard } from "./comparison-card";
 import PieChartComponent from "@/components/pie-chart";
 import { useGetViolationsSummary } from "@/hooks/use-get-violations-summary";
+import { useDashboardMode } from "@/hooks/use-dashboard-mode";
 
 export const StatsCards = () => {
   const [current, setCurrent] = useState<CurrentDate>(CurrentDate.day);
+  const { setCurrent: setBasedOn } = useDashboardMode();
+
+  useEffect(() => {
+    setBasedOn(current);
+  }, [current, setBasedOn]);
 
   const { data, isLoading, error } = useGetViolationsSummary({
     current,
